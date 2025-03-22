@@ -33,7 +33,7 @@ const sampleQuestions: Record<string, string[]> = {
   ],
   education: [
     'How is AI transforming personalized learning?',
-    'What's the future of online vs in-person education?',
+    'What\'s the future of online vs in-person education?',
     'How can educators incorporate VR/AR effectively?'
   ],
   manufacturing: [
