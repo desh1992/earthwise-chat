@@ -7,6 +7,7 @@ import Timeline from '@/components/Timeline';
 import Chat from '@/components/Chat';
 import StatPanel from '@/components/StatPanel';
 import ExplanationSidebar from '@/components/ExplanationSidebar';
+import MantlePhase from '@/components/phase2/MantePhase';
 
 const Home = () => {
   const { user } = useContext(AuthContext);
@@ -24,6 +25,17 @@ const Home = () => {
   // Handle new stats from chat
   const handleNewStats = (stats: any) => {
     setLatestStats(stats);
+  };
+
+  const getPhaseTitle = () => {
+    switch (currentPhase) {
+      case 1: return "Earth's Crust";
+      case 2: return "Mantle";
+      case 3: return "Outer Core";
+      case 4: return "Inner Core";
+      case 5: return "Core";
+      default: return "Earth's Crust";
+    }
   };
 
   return (
@@ -57,7 +69,12 @@ const Home = () => {
               Welcome, {user?.company || 'Explorer'}
             </h1>
             <p className="text-muted-foreground">
-              You're in the Earth's Crust phase. Ask questions to see how our AI responds and analyze the performance metrics.
+              You're in the {getPhaseTitle()} phase. 
+              {currentPhase === 1 
+                ? " Ask questions to see how our AI responds and analyze the performance metrics."
+                : currentPhase === 2 
+                ? " Compare different AI models by exploring questions across industries."
+                : " This phase is coming soon."}
             </p>
           </motion.div>
           
@@ -104,8 +121,20 @@ const Home = () => {
             </div>
           )}
           
-          {/* Phase 2-5 (Placeholder) */}
-          {currentPhase > 1 && (
+          {/* Phase 2: Mantle - LLM Comparison */}
+          {currentPhase === 2 && (
+            <motion.div 
+              className="glass-card p-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <MantlePhase />
+            </motion.div>
+          )}
+          
+          {/* Phase 3-5 (Placeholder) */}
+          {currentPhase > 2 && (
             <motion.div 
               className="glass-card h-[600px] flex flex-col items-center justify-center text-center"
               initial={{ opacity: 0 }}
@@ -114,7 +143,7 @@ const Home = () => {
             >
               <h2 className="text-2xl font-bold mb-4">Phase {currentPhase} Coming Soon</h2>
               <p className="text-muted-foreground max-w-lg mb-6">
-                This phase of the Earth journey is still being excavated. Check back soon or return to the Crust phase.
+                This phase of the Earth journey is still being excavated. Check back soon or return to the earlier phases.
               </p>
               <Button onClick={() => setCurrentPhase(1)}>Return to Crust</Button>
             </motion.div>

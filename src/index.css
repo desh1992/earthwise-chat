@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
@@ -47,6 +48,17 @@
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Improve input focus styling */
+  input, textarea, select {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure form elements are clickable */
+  input, button, select, textarea {
+    pointer-events: auto !important;
   }
 }
 
@@ -176,4 +188,9 @@
 
 .focus-ring-animation {
   animation: focusRing 0.3s ease forwards;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

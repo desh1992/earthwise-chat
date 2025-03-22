@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, X } from 'lucide-react';
+import { Info, X, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { storageService } from '@/services/storage';
@@ -14,7 +14,8 @@ const ExplanationSidebar = () => {
     const savedExplanations = storageService.getStatExplanations();
     if (savedExplanations && Object.keys(savedExplanations).length > 0) {
       setExplanations(savedExplanations);
-      setIsVisible(true);
+      // Don't auto-show on mobile or smaller screens
+      setIsVisible(window.innerWidth > 1024);
     }
   }, []);
 
@@ -39,7 +40,7 @@ const ExplanationSidebar = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        {isVisible ? <X size={20} /> : <Info size={20} />}
+        {isVisible ? <X size={20} /> : <Layers size={20} />}
       </motion.button>
     
       <AnimatePresence>
