@@ -17,14 +17,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { authService } from '@/services/auth';
+import PasswordInput from './PasswordInput';
 
 const signupSchema = z.object({
+  name: z.string().min(1, { message: 'Name is required' }),
   email: z.string().email({ message: 'Invalid email address' }),
-  company: z.string().min(1, { message: 'Field required' }),
+  company: z.string().min(1, { message: 'Company name is required' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' })
     .regex(/.*[A-Za-z].*/, { message: 'Password must contain at least one letter' })
     .regex(/.*\d.*/, { message: 'Password must contain at least one number' }),
-  confirmPassword: z.string().min(1, { message: 'Field required' }),
+  confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -51,7 +53,7 @@ const SignupForm = () => {
   
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { email: '', company: '', password: '', confirmPassword: '' },
+    defaultValues: { name: '', email: '', company: '', password: '', confirmPassword: '' },
     mode: 'onChange',
   });
 
@@ -84,14 +86,20 @@ const SignupForm = () => {
         >
           <FormField
             control={form.control}
-            name="email"
+            name="name"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
+              <FormItem className="relative">
+                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                }`}>
+                  Name
+                </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="you@example.com"
-                    autoComplete="email"
+                    placeholder="John Doe"
+                    className={`pt-6 pb-2 rounded-2xl shadow-sm ${
+                      field.value ? 'border-primary' : ''
+                    }`}
                     {...field}
                   />
                 </FormControl>
@@ -110,13 +118,21 @@ const SignupForm = () => {
         >
           <FormField
             control={form.control}
-            name="company"
+            name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company Name</FormLabel>
+              <FormItem className="relative">
+                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                }`}>
+                  Email
+                </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Acme Inc."
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    className={`pt-6 pb-2 rounded-2xl shadow-sm ${
+                      field.value ? 'border-primary' : ''
+                    }`}
                     {...field}
                   />
                 </FormControl>
@@ -135,14 +151,20 @@ const SignupForm = () => {
         >
           <FormField
             control={form.control}
-            name="password"
+            name="company"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
+              <FormItem className="relative">
+                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                }`}>
+                  Company Name
+                </FormLabel>
                 <FormControl>
                   <Input
-                    type="password"
-                    autoComplete="new-password"
+                    placeholder="Acme Inc."
+                    className={`pt-6 pb-2 rounded-2xl shadow-sm ${
+                      field.value ? 'border-primary' : ''
+                    }`}
                     {...field}
                   />
                 </FormControl>
@@ -161,17 +183,39 @@ const SignupForm = () => {
         >
           <FormField
             control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="relative">
+                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                }`}>
+                  Password
+                </FormLabel>
+                <PasswordInput field={field} placeholder="Create a password" autoComplete="new-password" />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div 
+          className="space-y-2"
+          custom={5}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={form.control}
             name="confirmPassword"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    autoComplete="new-password"
-                    {...field}
-                  />
-                </FormControl>
+              <FormItem className="relative">
+                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                }`}>
+                  Confirm Password
+                </FormLabel>
+                <PasswordInput field={field} placeholder="Confirm your password" autoComplete="new-password" />
                 <FormMessage />
               </FormItem>
             )}
@@ -179,14 +223,15 @@ const SignupForm = () => {
         </motion.div>
         
         <motion.div
-          custom={5}
+          custom={6}
           variants={formVariants}
           initial="hidden"
           animate="visible"
+          className="pt-2"
         >
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full rounded-2xl py-6" 
             disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (

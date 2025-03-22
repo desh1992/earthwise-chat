@@ -3,6 +3,7 @@
 
 interface User {
   email: string;
+  name?: string;
   company: string;
 }
 
@@ -10,10 +11,10 @@ interface User {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Mock user storage
-const mockUsers: Record<string, { email: string; company: string; password: string }> = {};
+const mockUsers: Record<string, { email: string; name?: string; company: string; password: string }> = {};
 
 export const authService = {
-  async signup(email: string, company: string, password: string): Promise<void> {
+  async signup(email: string, company: string, password: string, name?: string): Promise<void> {
     // Simulate API call
     await delay(1500);
     
@@ -23,7 +24,7 @@ export const authService = {
     }
     
     // Store new user
-    mockUsers[email] = { email, company, password };
+    mockUsers[email] = { email, name, company, password };
     
     return;
   },
@@ -40,6 +41,7 @@ export const authService = {
     
     return {
       email: user.email,
+      name: user.name,
       company: user.company
     };
   }

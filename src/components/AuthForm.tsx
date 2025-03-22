@@ -7,7 +7,11 @@ interface AuthFormProps {
 }
 
 const AuthForm = ({ type }: AuthFormProps) => {
-  return type === 'login' ? <LoginForm /> : <SignupForm />;
+  return (
+    <div className="w-full max-w-md">
+      {type === 'login' ? <LoginForm /> : <SignupForm />}
+    </div>
+  );
 };
 
 export default AuthForm;
