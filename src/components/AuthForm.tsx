@@ -7,6 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { AuthContext } from '@/App';
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
@@ -44,11 +52,13 @@ const AuthForm = ({ type }: AuthFormProps) => {
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
+    mode: 'onChange',
   });
 
   const signupForm = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: { email: '', company: '', password: '', confirmPassword: '' },
+    mode: 'onChange',
   });
 
   const onLoginSubmit = async (values: LoginFormValues) => {
@@ -102,171 +112,219 @@ const AuthForm = ({ type }: AuthFormProps) => {
   };
 
   const renderLoginForm = () => (
-    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
-      <motion.div 
-        className="space-y-2"
-        custom={1}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          placeholder="you@example.com"
-          autoComplete="email"
-          {...loginForm.register('email')}
-          className={loginForm.formState.errors.email ? "border-red-500" : ""}
-        />
-        {loginForm.formState.errors.email && (
-          <p className="text-red-500 text-sm">{loginForm.formState.errors.email.message}</p>
-        )}
-      </motion.div>
-      
-      <motion.div 
-        className="space-y-2"
-        custom={2}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="flex justify-between items-center">
-          <Label htmlFor="password">Password</Label>
+    <Form {...loginForm}>
+      <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+        <motion.div 
+          className="space-y-2"
+          custom={1}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={loginForm.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div 
+          className="space-y-2"
+          custom={2}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={loginForm.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex justify-between items-center">
+                  <FormLabel>Password</FormLabel>
+                  <Button 
+                    variant="link" 
+                    className="text-xs p-0 h-auto font-normal text-muted-foreground" 
+                    type="button"
+                  >
+                    Forgot password?
+                  </Button>
+                </div>
+                <FormControl>
+                  <Input
+                    type="password"
+                    autoComplete="current-password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div
+          custom={3}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <Button 
-            variant="link" 
-            className="text-xs p-0 h-auto font-normal text-muted-foreground" 
-            type="button"
+            type="submit" 
+            className="w-full" 
+            disabled={isLoading || !loginForm.formState.isValid}
           >
-            Forgot password?
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                Signing in...
+              </div>
+            ) : 'Sign In'}
           </Button>
-        </div>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          {...loginForm.register('password')}
-          className={loginForm.formState.errors.password ? "border-red-500" : ""}
-        />
-        {loginForm.formState.errors.password && (
-          <p className="text-red-500 text-sm">{loginForm.formState.errors.password.message}</p>
-        )}
-      </motion.div>
-      
-      <motion.div
-        custom={3}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-              Signing in...
-            </div>
-          ) : 'Sign In'}
-        </Button>
-      </motion.div>
-    </form>
+        </motion.div>
+      </form>
+    </Form>
   );
 
   const renderSignupForm = () => (
-    <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
-      <motion.div 
-        className="space-y-2"
-        custom={1}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          placeholder="you@example.com"
-          autoComplete="email"
-          {...signupForm.register('email')}
-          className={signupForm.formState.errors.email ? "border-red-500" : ""}
-        />
-        {signupForm.formState.errors.email && (
-          <p className="text-red-500 text-sm">{signupForm.formState.errors.email.message}</p>
-        )}
-      </motion.div>
-      
-      <motion.div 
-        className="space-y-2"
-        custom={2}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Label htmlFor="company">Company Name</Label>
-        <Input
-          id="company"
-          placeholder="Acme Inc."
-          {...signupForm.register('company')}
-          className={signupForm.formState.errors.company ? "border-red-500" : ""}
-        />
-        {signupForm.formState.errors.company && (
-          <p className="text-red-500 text-sm">{signupForm.formState.errors.company.message}</p>
-        )}
-      </motion.div>
-      
-      <motion.div 
-        className="space-y-2"
-        custom={3}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          {...signupForm.register('password')}
-          className={signupForm.formState.errors.password ? "border-red-500" : ""}
-        />
-        {signupForm.formState.errors.password && (
-          <p className="text-red-500 text-sm">{signupForm.formState.errors.password.message}</p>
-        )}
-      </motion.div>
-      
-      <motion.div 
-        className="space-y-2"
-        custom={4}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          {...signupForm.register('confirmPassword')}
-          className={signupForm.formState.errors.confirmPassword ? "border-red-500" : ""}
-        />
-        {signupForm.formState.errors.confirmPassword && (
-          <p className="text-red-500 text-sm">{signupForm.formState.errors.confirmPassword.message}</p>
-        )}
-      </motion.div>
-      
-      <motion.div
-        custom={5}
-        variants={formVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-              Creating account...
-            </div>
-          ) : 'Create Account'}
-        </Button>
-      </motion.div>
-    </form>
+    <Form {...signupForm}>
+      <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+        <motion.div 
+          className="space-y-2"
+          custom={1}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={signupForm.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div 
+          className="space-y-2"
+          custom={2}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={signupForm.control}
+            name="company"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Acme Inc."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div 
+          className="space-y-2"
+          custom={3}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={signupForm.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div 
+          className="space-y-2"
+          custom={4}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <FormField
+            control={signupForm.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </motion.div>
+        
+        <motion.div
+          custom={5}
+          variants={formVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isLoading || !signupForm.formState.isValid}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                Creating account...
+              </div>
+            ) : 'Create Account'}
+          </Button>
+        </motion.div>
+      </form>
+    </Form>
   );
 
   return type === 'login' ? renderLoginForm() : renderSignupForm();
