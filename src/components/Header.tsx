@@ -1,4 +1,3 @@
-
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '@/App';
@@ -12,7 +11,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
     setIsAuthenticated(false);
     setUser(null);
     navigate('/login');

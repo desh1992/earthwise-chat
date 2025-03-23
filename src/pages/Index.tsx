@@ -1,11 +1,21 @@
-
+import { useContext } from 'react';
+import { AuthContext } from '@/App';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 
 const Index = () => {
+  const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleGetStartedClick = () => {
+    if (isAuthenticated) {
+      navigate('/home');
+    } else {
+      navigate('/signup');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,7 +82,7 @@ const Index = () => {
             <Button 
               size="lg" 
               className="px-8 rounded-full"
-              onClick={() => navigate('/signup')}
+              onClick={handleGetStartedClick}
             >
               Get Started
             </Button>

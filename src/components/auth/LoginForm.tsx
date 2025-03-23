@@ -1,11 +1,9 @@
-
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { AuthContext } from '@/App';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -42,9 +40,13 @@ const formVariants = {
   }),
 };
 
-const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { setIsAuthenticated, setUser } = useContext(AuthContext);
+interface LoginFormProps {
+  onSubmit: (values: { email: string; password: string }) => void;
+  loading: boolean;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const form = useForm<LoginFormValues>({
@@ -53,33 +55,19 @@ const LoginForm = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    setIsLoading(true);
-    try {
-      const user = await authService.login(values.email, values.password);
-      setUser(user);
-      setIsAuthenticated(true);
-      
-      if (values.rememberMe) {
-        localStorage.setItem('user', JSON.stringify(user));
-      }
-      
-      toast({ title: 'Success', description: 'Login successful!' });
-      navigate('/home');
-    } catch (error) {
-      toast({ 
-        title: 'Error', 
-        description: 'Account does not exist',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const values = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    };
+    onSubmit(values); // Call the onSubmit prop
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <motion.div 
           className="space-y-4"
           custom={1}
@@ -178,9 +166,9 @@ const LoginForm = () => {
           <Button 
             type="submit" 
             className="w-full rounded-2xl py-6" 
-            disabled={isLoading || !form.formState.isValid}
+            disabled={loading || !form.formState.isValid}
           >
-            {isLoading ? (
+            {loading ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                 Signing in...
@@ -188,6 +176,7 @@ const LoginForm = () => {
             ) : 'Sign In'}
           </Button>
         </motion.div>
+        {error && <div className="error">{error}</div>}
       </form>
     </Form>
   );

@@ -27,6 +27,7 @@ interface User {
   company: string;
 }
 
+// Define the context
 export const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   setIsAuthenticated: () => {},
@@ -34,14 +35,45 @@ export const AuthContext = createContext<AuthContextType>({
   setUser: () => {},
 });
 
+// AuthProvider component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      setIsAuthenticated(true);
+      // Optionally decode the token to get user info
+      // const decodedUser = decodeToken(token); // Implement this function if needed
+      // setUser(decodedUser);
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
 // Protected route wrapper
 const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  // Check for token in localStorage
+  const token = localStorage.getItem('access_token');
+
+  // If not authenticated and no token, redirect to login
+  if (!isAuthenticated && !token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  // Optionally, you can add more logic to verify the token's validity here
 
   return <>{element}</>;
 };
@@ -79,7 +111,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser }}>
+      <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -87,7 +119,7 @@ const App = () => {
             <AnimatedRoutes />
           </BrowserRouter>
         </TooltipProvider>
-      </AuthContext.Provider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

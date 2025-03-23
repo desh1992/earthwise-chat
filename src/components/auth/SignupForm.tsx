@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -47,7 +46,12 @@ const formVariants = {
   }),
 };
 
-const SignupForm = () => {
+interface SignupFormProps {
+  onSubmit: (values: { email: string; company: string; password: string }) => void;
+  loading: boolean;
+}
+
+const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
@@ -57,26 +61,20 @@ const SignupForm = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = async (values: SignupFormValues) => {
-    setIsLoading(true);
-    try {
-      await authService.signup(values.email, values.company, values.password);
-      toast({ title: 'Success', description: 'Account created successfully!' });
-      navigate('/login');
-    } catch (error) {
-      toast({ 
-        title: 'Error', 
-        description: 'There was a problem creating your account',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const values = {
+      email: formData.get('email') as string,
+      company: formData.get('company') as string,
+      password: formData.get('password') as string,
+    };
+    onSubmit(values);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <motion.div 
           className="space-y-2"
           custom={1}
