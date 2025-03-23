@@ -25,14 +25,14 @@ const PasswordInput = ({ placeholder = "••••••••", autoComplete 
           type={showPassword ? "text" : "password"}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`pr-10 ${className || ''}`}
+          className={`pr-10 cursor-text ${className || ''}`}
           {...props}
         />
       </FormControl>
       <button
         type="button"
         onClick={togglePasswordVisibility}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer z-10"
         tabIndex={-1}
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
