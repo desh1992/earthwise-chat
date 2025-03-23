@@ -1,27 +1,28 @@
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Info, X, Layers } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Info, X, ChevronRight, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { storageService } from '@/services/storage';
 
 const ExplanationSidebar = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   
   useEffect(() => {
     const savedExplanations = storageService.getStatExplanations();
     if (savedExplanations && Object.keys(savedExplanations).length > 0) {
       setExplanations(savedExplanations);
-      // Don't auto-show on mobile or smaller screens
-      setIsVisible(window.innerWidth > 1024);
+      
+      // Initialize all cards as not flipped
+      const initialFlippedState: Record<string, boolean> = {};
+      Object.keys(savedExplanations).forEach(key => {
+        initialFlippedState[key] = false;
+      });
+      setFlippedCards(initialFlippedState);
     }
   }, []);
-
-  const toggleSidebar = () => {
-    setIsVisible(!isVisible);
-  };
 
   const formatKey = (key: string) => {
     return key
@@ -29,52 +30,82 @@ const ExplanationSidebar = () => {
       .replace(/^./, (str) => str.toUpperCase());
   };
 
+  const toggleCard = (key: string) => {
+    setFlippedCards(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Only show if there are explanations
+  if (Object.keys(explanations).length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      <motion.button
-        className="fixed left-4 top-20 z-50 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={toggleSidebar}
+    <div className="mt-10 mb-10 w-full">
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.3 }}
+        className="max-w-7xl mx-auto px-4"
       >
-        {isVisible ? <X size={20} /> : <Layers size={20} />}
-      </motion.button>
-    
-      <AnimatePresence>
-        {isVisible && Object.keys(explanations).length > 0 && (
-          <motion.div
-            className="fixed left-0 top-0 bottom-0 w-72 glass-morphism z-40 shadow-xl overflow-hidden"
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-          >
-            <div className="pt-20 pb-6 px-4 h-full flex flex-col">
-              <h2 className="text-xl font-medium mb-4">Stats Explained</h2>
-              <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-4">
-                  {Object.entries(explanations).map(([key, description], index) => (
-                    <motion.div 
-                      key={key}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 + index * 0.05 }}
-                      className="pb-3 border-b border-border"
-                    >
-                      <h3 className="font-medium text-sm mb-1">{formatKey(key)}</h3>
-                      <p className="text-sm text-muted-foreground">{description}</p>
-                    </motion.div>
-                  ))}
+        <h2 className="text-xl font-medium mb-6">Terminology & Metrics</h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(explanations).map(([key, description], index) => (
+            <motion.div 
+              key={key}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
+              className="relative"
+              style={{ perspective: '1000px', height: '180px' }}
+            >
+              <motion.div 
+                className={`absolute w-full h-full rounded-xl transition-all duration-500 cursor-pointer glass-morphism shadow-md ${flippedCards[key] ? 'rotate-y-180 pointer-events-none' : ''}`}
+                animate={{ rotateY: flippedCards[key] ? 180 : 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="p-4 h-full flex flex-col">
+                  <h3 className="font-medium text-sm mb-2">{formatKey(key)}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-3 flex-grow">{description}</p>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-2 w-full justify-between"
+                    onClick={() => toggleCard(key)}
+                  >
+                    Read More <ChevronRight size={16} />
+                  </Button>
                 </div>
-              </ScrollArea>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+              </motion.div>
+              
+              <motion.div 
+                className={`absolute w-full h-full rounded-xl transition-all duration-500 glass-morphism shadow-md bg-secondary/50 ${!flippedCards[key] ? 'rotate-y-180 pointer-events-none' : ''}`}
+                animate={{ rotateY: flippedCards[key] ? 0 : -180 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="p-4 h-full flex flex-col">
+                  <h3 className="font-medium text-sm mb-2">{formatKey(key)}</h3>
+                  <ScrollArea className="flex-grow">
+                    <p className="text-sm">{description}</p>
+                  </ScrollArea>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-2 w-full justify-between"
+                    onClick={() => toggleCard(key)}
+                  >
+                    <RotateCcw size={16} /> Back
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
