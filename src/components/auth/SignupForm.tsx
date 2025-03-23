@@ -61,7 +61,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
     mode: 'onChange',
   });
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const values = {

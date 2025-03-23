@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send } from 'lucide-react';
@@ -14,6 +13,15 @@ interface Message {
   content: string;
   stats?: any;
 }
+
+const StatsDisplay = ({ metrics }: { metrics: any }) => {
+  if (!metrics) return null; // Handle case where metrics might be null
+
+  return (
+    <div className="stats-display">
+    </div>
+  );
+};
 
 const Chat = ({ 
   onNewStats 
@@ -48,17 +56,47 @@ const Chat = ({
     setIsLoading(true);
 
     try {
-      const { response, stats } = await llmService.getResponse(input);
-      
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response,
-        stats,
+      // Prepare the payload for the API call
+      const payload = {
+        message: input,
+        temperature: 0.7,
+        top_p: 1,
+        max_tokens: 512,
+        frequency_penalty: 0,
+        presence_penalty: 0,
       };
-      
+
+      // Make the API call to send the message
+      const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/chat/sendMessage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Check if the response is OK
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      // Parse the response
+      const data = await response.json();
+
+      // Create the assistant message based on the new response structure
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: data.response, // Use the response from the API
+        stats: data.metrics, // Include metrics for display
+      };
+
       setMessages((prev) => [...prev, assistantMessage]);
-      onNewStats(stats);
+      onNewStats(data.metrics); // Call the stats handler with metrics
+
+      // Optionally, you can log the entire response for debugging
+      console.log('API Response:', data);
+
     } catch (error) {
       console.error('Error getting response:', error);
     } finally {
@@ -82,6 +120,7 @@ const Chat = ({
               >
                 <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-primary text-white' : 'glass-card'} rounded-2xl px-4 py-3`}>
                   <p className="text-sm">{message.content}</p>
+                  {message.role === 'assistant' && <StatsDisplay metrics={message.stats} />}
                 </div>
               </motion.div>
             ))}
