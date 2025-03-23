@@ -13,6 +13,7 @@ import { authService } from '@/services/auth';
 import { RotatingLines } from 'react-loader-spinner';
 import PasswordInput from './PasswordInput';
 import { formAnimations } from './form-animations';
+import AccountPrompt from './AccountPrompt';
 
 // Define form schema
 const formSchema = z.object({
@@ -194,17 +195,9 @@ const SignupForm = () => {
       </Form>
 
       <motion.div 
-        className="text-center text-sm"
         variants={formAnimations.item}
       >
-        <span className="text-muted-foreground">Already have an account? </span>
-        <Button 
-          variant="link" 
-          className="p-0 font-semibold transition-colors duration-300 hover:text-primary/80"
-          onClick={() => navigate('/login')}
-        >
-          Sign In
-        </Button>
+        <AccountPrompt type="signup" />
       </motion.div>
     </motion.div>
   );
