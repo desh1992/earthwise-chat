@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface TerminologyCardProps {
   title: string;
@@ -12,8 +12,8 @@ interface TerminologyCardProps {
 
 const TerminologyCard = ({ title, description, delay = 0 }: TerminologyCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const truncatedDescription = description.length > 100 
-    ? description.substring(0, 100) + '...' 
+  const truncatedDescription = description.length > 70 
+    ? description.substring(0, 70) + '...' 
     : description;
 
   const cardVariants = {
@@ -38,13 +38,13 @@ const TerminologyCard = ({ title, description, delay = 0 }: TerminologyCardProps
     >
       <div className={`card-inner duration-500 ${isFlipped ? 'flipped' : ''}`}>
         {/* Card Front */}
-        <div className="card-front glass-card p-4 absolute w-full h-full backface-hidden">
-          <h4 className="font-medium text-base mb-1">{title}</h4>
-          <p className="text-sm text-muted-foreground mb-3">{truncatedDescription}</p>
+        <div className="card-front glass-card p-3 absolute w-full h-full backface-hidden">
+          <h4 className="font-medium text-sm mb-1">{title}</h4>
+          <p className="text-xs text-muted-foreground mb-2">{truncatedDescription}</p>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-xs flex items-center group"
+            className="text-xs flex items-center group p-0 h-auto"
             onClick={() => setIsFlipped(true)}
           >
             Read more
@@ -53,15 +53,16 @@ const TerminologyCard = ({ title, description, delay = 0 }: TerminologyCardProps
         </div>
         
         {/* Card Back */}
-        <div className="card-back glass-card p-4 absolute w-full h-full backface-hidden rotateY-180">
-          <h4 className="font-medium text-base mb-2">{title}</h4>
-          <p className="text-sm text-muted-foreground mb-3 overflow-y-auto max-h-[150px]">{description}</p>
+        <div className="card-back glass-card p-3 absolute w-full h-full backface-hidden rotateY-180">
+          <h4 className="font-medium text-sm mb-2">{title}</h4>
+          <p className="text-xs text-muted-foreground mb-2 overflow-y-auto max-h-[120px]">{description}</p>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-xs"
+            className="text-xs flex items-center group p-0 h-auto"
             onClick={() => setIsFlipped(false)}
           >
+            <ChevronLeft className="h-3 w-3 mr-1 group-hover:-translate-x-1 transition-transform" />
             Go back
           </Button>
         </div>

@@ -1,4 +1,3 @@
-
 import { useState, useContext, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AuthContext } from '@/App';
@@ -14,7 +13,7 @@ const Home = () => {
   const { user, isPresenter, setIsPresenter } = useContext(AuthContext);
   const [currentPhase, setCurrentPhase] = useState(1);
   const [latestStats, setLatestStats] = useState<any>(null);
-  const [showTerminology, setShowTerminology] = useState(false);
+  const [showTerminology, setShowTerminology] = useState(true); // Always show terminology
 
   // Toggle presenter mode (for testing)
   const togglePresenterMode = () => {
@@ -31,7 +30,6 @@ const Home = () => {
   // Handle new stats from chat
   const handleNewStats = (stats: any) => {
     setLatestStats(stats);
-    setShowTerminology(true);
   };
 
   const getPhaseTitle = () => {
@@ -82,37 +80,43 @@ const Home = () => {
           />
         </motion.div>
         
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Welcome Message and Mode Toggle (for testing) */}
-          <motion.div
-            className="mb-8 flex justify-between items-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
-                Welcome, {user?.company || 'Explorer'}
-              </h1>
-              <p className="text-muted-foreground">
-                You're in the {getPhaseTitle()} phase. {getPhaseDescription()}
-              </p>
-            </div>
-            
-            {/* Mode Toggle for Testing */}
-            <Button 
-              variant="outline" 
-              onClick={togglePresenterMode}
-              className="hidden sm:block"
-            >
-              Switch to {isPresenter ? 'Audience' : 'Presenter'} Mode
-            </Button>
-          </motion.div>
+        {/* Main Layout: Terminology Sidebar + Content */}
+        <div className="flex">
+          {/* Terminology Guide Sidebar */}
+          <div className="sticky top-[130px] h-[calc(100vh-130px)] flex-shrink-0">
+            <TerminologySection isVisible={showTerminology} />
+          </div>
           
-          {/* Phase 1: Behind the Scenes - Chat and Stats */}
-          {currentPhase === 1 && (
-            <>
+          {/* Main Content Area */}
+          <div className="flex-grow px-4 py-6">
+            {/* Welcome Message and Mode Toggle */}
+            <motion.div
+              className="mb-6 flex justify-between items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div>
+                <h1 className="text-2xl font-bold mb-2">
+                  Welcome, {user?.company || 'Explorer'}
+                </h1>
+                <p className="text-muted-foreground">
+                  You're in the {getPhaseTitle()} phase. {getPhaseDescription()}
+                </p>
+              </div>
+              
+              {/* Mode Toggle for Testing */}
+              <Button 
+                variant="outline" 
+                onClick={togglePresenterMode}
+                className="hidden sm:block"
+              >
+                Switch to {isPresenter ? 'Audience' : 'Presenter'} Mode
+              </Button>
+            </motion.div>
+            
+            {/* Phase 1: Behind the Scenes - Chat and Stats */}
+            {currentPhase === 1 && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Chat Section */}
                 <motion.div 
@@ -121,8 +125,8 @@ const Home = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
                 >
-                  <h2 className="text-xl font-medium mb-4">Chat with AI</h2>
-                  <div className="flex-1 border rounded-lg overflow-hidden">
+                  <h2 className="text-xl font-medium p-4 pb-0">Chat with AI</h2>
+                  <div className="flex-1 m-4 mt-2 border rounded-lg overflow-hidden">
                     <Chat onNewStats={handleNewStats} />
                   </div>
                 </motion.div>
@@ -152,15 +156,10 @@ const Home = () => {
                   )}
                 </motion.div>
               </div>
-              
-              {/* Terminology Cards Section */}
-              <TerminologySection isVisible={showTerminology} />
-            </>
-          )}
-          
-          {/* Phase 2: Comprehension - LLM Comparison */}
-          {currentPhase === 2 && (
-            <>
+            )}
+            
+            {/* Phase 2: Comprehension - LLM Comparison */}
+            {currentPhase === 2 && (
               <motion.div 
                 className="glass-card p-6"
                 initial={{ opacity: 0 }}
@@ -169,15 +168,10 @@ const Home = () => {
               >
                 <MantlePhase />
               </motion.div>
-              
-              {/* Terminology Cards Section */}
-              <TerminologySection isVisible={showTerminology} />
-            </>
-          )}
-          
-          {/* Phase 3-9 (Coming Soon) */}
-          {currentPhase > 2 && (
-            <>
+            )}
+            
+            {/* Phase 3-9 (Coming Soon) */}
+            {currentPhase > 2 && (
               <motion.div 
                 className="glass-card h-[600px] flex flex-col items-center justify-center text-center"
                 initial={{ opacity: 0 }}
@@ -190,11 +184,8 @@ const Home = () => {
                 </p>
                 <Button onClick={() => setCurrentPhase(1)}>Return to Phase 1</Button>
               </motion.div>
-              
-              {/* Terminology Cards Section */}
-              <TerminologySection isVisible={showTerminology} />
-            </>
-          )}
+            )}
+          </div>
         </div>
       </main>
     </div>

@@ -5,7 +5,7 @@ import {
   BookOpen,
   CircuitBoard, 
   Code,
-  Type,
+  AlignJustify,
   ListChecks,
   Sparkles,
   BarChart,
@@ -23,7 +23,7 @@ const phases = [
   { id: 2, name: 'Comprehension', color: 'bg-blue-500', icon: BookOpen },
   { id: 3, name: 'Reasoning', color: 'bg-cyan-500', icon: CircuitBoard },
   { id: 4, name: 'Technical', color: 'bg-teal-500', icon: Code },
-  { id: 5, name: 'Language', color: 'bg-green-500', icon: Type },
+  { id: 5, name: 'Language', color: 'bg-green-500', icon: AlignJustify },
   { id: 6, name: 'Instruction', color: 'bg-yellow-500', icon: ListChecks },
   { id: 7, name: 'Creativity', color: 'bg-orange-500', icon: Sparkles },
   { id: 8, name: 'Bias Awareness', color: 'bg-red-500', icon: Scale },
@@ -45,7 +45,7 @@ const Timeline = ({ currentPhase, isPresenter, onPhaseSelect }: TimelineProps) =
   };
 
   return (
-    <div className="w-full py-6 overflow-x-auto glass-morphism">
+    <div className="w-full py-6 overflow-x-auto glass-morphism top-10 sticky z-10">
       <div className="flex justify-start min-w-max px-4 max-w-7xl mx-auto">
         <div className="flex space-x-6 md:space-x-10">
           {phases.map((phase) => {
