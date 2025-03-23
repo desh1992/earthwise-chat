@@ -1,3 +1,4 @@
+
 import { useState, useContext, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AuthContext } from '@/App';
@@ -147,11 +148,11 @@ const Home = () => {
               <Button onClick={() => setCurrentPhase(1)}>Return to Crust</Button>
             </motion.div>
           )}
-          
-          {/* Explanation Cards - only shown after first stats are received */}
-          {latestStats && <ExplanationSidebar />}
         </div>
       </main>
+      
+      {/* Explanation Sidebar */}
+      <ExplanationSidebar />
     </div>
   );
 };

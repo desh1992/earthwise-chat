@@ -43,10 +43,6 @@ const ResponseComparison = ({ question, onReset }: ResponseComparisonProps) => {
     }, 2000);
   };
 
-  const handleRevealAll = () => {
-    setRevealed(true);
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-10 h-96">
@@ -61,29 +57,11 @@ const ResponseComparison = ({ question, onReset }: ResponseComparisonProps) => {
       <div className="mb-6">
         <h2 className="text-xl font-medium mb-2">Compare Responses</h2>
         <p className="text-muted-foreground">
-          {!selectedModelId 
-            ? 'Select your favorite response by clicking on a card.'
-            : !revealed
-            ? 'You selected your favorite. Would you like to reveal all cards?'
-            : 'View and compare detailed model information below.'}
+          {selectedModelId 
+            ? 'View and compare detailed model information below.' 
+            : 'Select your favorite response by clicking on a card.'}
         </p>
       </div>
-      
-      {selectedModelId && !revealed && (
-        <motion.div 
-          className="mb-4 flex justify-center"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Button 
-            onClick={handleRevealAll}
-            className="transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            Reveal All Models
-          </Button>
-        </motion.div>
-      )}
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {responses.map((model) => (
@@ -109,12 +87,7 @@ const ResponseComparison = ({ question, onReset }: ResponseComparisonProps) => {
           <ComparisonHeatmap responses={responses} />
           
           <div className="mt-8 flex justify-center">
-            <Button 
-              onClick={onReset}
-              className="transition-all duration-300 hover:scale-105 active:scale-95"
-            >
-              Try Another Question
-            </Button>
+            <Button onClick={onReset}>Try Another Question</Button>
           </div>
         </motion.div>
       )}

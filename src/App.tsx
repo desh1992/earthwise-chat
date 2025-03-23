@@ -5,14 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useState, useEffect, createContext, useContext } from "react";
-import StaticBanner from "./components/StaticBanner";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
-import { AuthContext as AppAuthContext } from '@/App'; // Ensure this is the correct import path
 
 const queryClient = new QueryClient();
 
@@ -41,15 +39,9 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const location = useLocation();
 
-  // Check for token in localStorage
-  const token = localStorage.getItem('access_token');
-
-  // If not authenticated and no token, redirect to login
-  if (!isAuthenticated && !token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
-  // Optionally, you can add more logic to verify the token's validity here
 
   return <>{element}</>;
 };
@@ -92,7 +84,6 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <StaticBanner />
             <AnimatedRoutes />
           </BrowserRouter>
         </TooltipProvider>
