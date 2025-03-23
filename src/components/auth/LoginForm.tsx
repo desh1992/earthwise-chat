@@ -1,4 +1,3 @@
-
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -20,6 +19,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { authService } from '@/services/auth';
 import PasswordInput from './PasswordInput';
+import AccountPrompt from './AccountPrompt';
+import { formVariants } from './form-animations';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -28,19 +29,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-const formVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.5,
-      ease: [0.4, 0.0, 0.2, 1],
-    },
-  }),
-};
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +44,33 @@ const LoginForm = () => {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const user = await authService.login(values.email, values.password);
+      // Call the backend API for login
+      const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store the access token in localStorage
+      localStorage.setItem('access_token', data.access_token);
+      
+      // For backwards compatibility, also keep the existing user storing logic
+      const user = {
+        email: values.email,
+        company: 'Company Name', // This will be updated from the API response
+      };
+      
       setUser(user);
       setIsAuthenticated(true);
       
@@ -67,9 +81,14 @@ const LoginForm = () => {
       toast({ title: 'Success', description: 'Login successful!' });
       navigate('/home');
     } catch (error) {
+      let errorMessage = 'Account does not exist';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({ 
         title: 'Error', 
-        description: 'Account does not exist',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -130,11 +149,17 @@ const LoginForm = () => {
                 }`}>
                   Password
                 </FormLabel>
-                <PasswordInput field={field} />
+                <FormControl>
+                  <PasswordInput
+                    field={field}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                  />
+                </FormControl>
                 <div className="flex justify-end">
                   <Button 
                     variant="link" 
-                    className="text-xs p-0 h-auto font-normal text-muted-foreground" 
+                    className="text-xs p-0 h-auto font-normal text-muted-foreground cursor-pointer" 
                     type="button"
                   >
                     Forgot password?
@@ -161,6 +186,7 @@ const LoginForm = () => {
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className="cursor-pointer"
                   />
                 </FormControl>
                 <FormLabel className="text-sm font-normal cursor-pointer">Remember me</FormLabel>
@@ -177,7 +203,7 @@ const LoginForm = () => {
         >
           <Button 
             type="submit" 
-            className="w-full rounded-2xl py-6" 
+            className="w-full rounded-2xl py-6 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" 
             disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (
@@ -189,6 +215,10 @@ const LoginForm = () => {
           </Button>
         </motion.div>
       </form>
+      
+      <div className="mt-6">
+        <AccountPrompt type="login" />
+      </div>
     </Form>
   );
 };
