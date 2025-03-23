@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -24,9 +23,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const LoginForm = () => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Initialize form
   const form = useForm<FormValues>({
@@ -37,17 +36,18 @@ const LoginForm = () => {
     }
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const handleSubmit = async (data: FormValues) => {
     setIsLoading(true);
-    setError(null);
-    
+    setError(''); // Reset error state before login attempt
     try {
-      await authService.login(data.email, data.password);
-      navigate('/home');
+      const user = await authService.login(data.email, data.password);
+      console.log('Login successful:', user); // Log the user object for debugging
+      navigate('/home'); // Navigate to home on successful login
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      console.log('Login error:', err); // Log the error for debugging
+      setError('Invalid email or password. Please try again.'); // Set error message
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Reset loading state
     }
   };
 
@@ -83,7 +83,7 @@ const LoginForm = () => {
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <motion.div variants={formAnimations.item}>
             <FormField
               control={form.control}

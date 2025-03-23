@@ -6,12 +6,14 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LogOut, User } from 'lucide-react';
+import { authService } from '@/services/auth';
 
 const Header = () => {
   const { isAuthenticated, setIsAuthenticated, user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await authService.logout()
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setUser(null);

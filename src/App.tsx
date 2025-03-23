@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import { AuthContext as AppAuthContext } from '@/App'; // Ensure this is the correct import path
 
 const queryClient = new QueryClient();
 
@@ -41,9 +41,15 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  // Check for token in localStorage
+  const token = localStorage.getItem('access_token');
+
+  // If not authenticated and no token, redirect to login
+  if (!isAuthenticated && !token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  // Optionally, you can add more logic to verify the token's validity here
 
   return <>{element}</>;
 };
