@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { authService } from '@/services/auth';
 import PasswordInput from './PasswordInput';
+import { formVariants } from './form-animations';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -28,19 +29,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-const formVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.5,
-      ease: [0.4, 0.0, 0.2, 1],
-    },
-  }),
-};
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -91,22 +79,24 @@ const LoginForm = () => {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                }`}>
-                  Email
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="you@example.com"
-                    autoComplete="email"
-                    className={`pt-6 pb-2 rounded-2xl shadow-sm ${
-                      field.value ? 'border-primary' : ''
-                    }`}
-                    {...field}
-                  />
-                </FormControl>
+              <FormItem>
+                <div className="relative">
+                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                  }`}>
+                    Email
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      className={`pt-6 pb-2 rounded-2xl shadow-sm ${
+                        field.value ? 'border-primary' : ''
+                      }`}
+                      {...field}
+                    />
+                  </FormControl>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
@@ -124,13 +114,17 @@ const LoginForm = () => {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                }`}>
-                  Password
-                </FormLabel>
-                <PasswordInput field={field} />
+              <FormItem>
+                <div className="relative">
+                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                  }`}>
+                    Password
+                  </FormLabel>
+                  <FormControl>
+                    <PasswordInput field={field} />
+                  </FormControl>
+                </div>
                 <div className="flex justify-end">
                   <Button 
                     variant="link" 
