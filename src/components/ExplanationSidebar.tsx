@@ -9,6 +9,7 @@ import { storageService } from '@/services/storage';
 const ExplanationSidebar = () => {
   const [explanations, setExplanations] = useState<Record<string, string>>({});
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   
   useEffect(() => {
     const savedExplanations = storageService.getStatExplanations();
@@ -61,11 +62,21 @@ const ExplanationSidebar = () => {
               transition={{ delay: 0.1 + index * 0.05 }}
               className="relative"
               style={{ perspective: '1000px', height: '180px' }}
+              onHoverStart={() => setHoveredCard(key)}
+              onHoverEnd={() => setHoveredCard(null)}
             >
               <motion.div 
                 className={`absolute w-full h-full rounded-xl transition-all duration-500 cursor-pointer glass-morphism shadow-md ${flippedCards[key] ? 'rotate-y-180 pointer-events-none' : ''}`}
-                animate={{ rotateY: flippedCards[key] ? 180 : 0 }}
-                transition={{ duration: 0.5 }}
+                animate={{ 
+                  rotateY: flippedCards[key] ? 180 : 0,
+                  scale: (!flippedCards[key] && hoveredCard === key) ? 1.03 : 1,
+                  boxShadow: (!flippedCards[key] && hoveredCard === key) ? "0 10px 25px rgba(0,0,0,0.08)" : "0 4px 6px rgba(0,0,0,0.05)"
+                }}
+                transition={{ 
+                  rotateY: { duration: 0.5 },
+                  scale: { duration: 0.2 },
+                  boxShadow: { duration: 0.2 }
+                }}
               >
                 <div className="p-4 h-full flex flex-col">
                   <h3 className="font-medium text-sm mb-2">{formatKey(key)}</h3>
@@ -73,18 +84,34 @@ const ExplanationSidebar = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="mt-2 w-full justify-between"
+                    className="mt-2 w-full justify-between group transition-all duration-300"
                     onClick={() => toggleCard(key)}
                   >
-                    Read More <ChevronRight size={16} />
+                    <span className="group-hover:text-primary transition-colors duration-300">Read More</span> 
+                    <motion.div
+                      animate={{ 
+                        x: hoveredCard === key ? 5 : 0,
+                      }}
+                      transition={{ duration: 0.3, type: "spring" }}
+                    >
+                      <ChevronRight size={16} className="group-hover:text-primary transition-colors duration-300" />
+                    </motion.div>
                   </Button>
                 </div>
               </motion.div>
               
               <motion.div 
                 className={`absolute w-full h-full rounded-xl transition-all duration-500 glass-morphism shadow-md bg-secondary/50 ${!flippedCards[key] ? 'rotate-y-180 pointer-events-none' : ''}`}
-                animate={{ rotateY: flippedCards[key] ? 0 : -180 }}
-                transition={{ duration: 0.5 }}
+                animate={{ 
+                  rotateY: flippedCards[key] ? 0 : -180,
+                  scale: (flippedCards[key] && hoveredCard === key) ? 1.03 : 1,
+                  boxShadow: (flippedCards[key] && hoveredCard === key) ? "0 10px 25px rgba(0,0,0,0.08)" : "0 4px 6px rgba(0,0,0,0.05)"
+                }}
+                transition={{ 
+                  rotateY: { duration: 0.5 },
+                  scale: { duration: 0.2 },
+                  boxShadow: { duration: 0.2 }
+                }}
               >
                 <div className="p-4 h-full flex flex-col">
                   <h3 className="font-medium text-sm mb-2">{formatKey(key)}</h3>
@@ -94,10 +121,18 @@ const ExplanationSidebar = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="mt-2 w-full justify-between"
+                    className="mt-2 w-full justify-between group transition-all duration-300"
                     onClick={() => toggleCard(key)}
                   >
-                    <RotateCcw size={16} /> Back
+                    <motion.div 
+                      className="flex items-center gap-1 group-hover:text-primary transition-colors duration-300"
+                      animate={{ 
+                        rotate: hoveredCard === key ? [0, -10, 0] : 0 
+                      }}
+                      transition={{ duration: 0.3, type: "spring" }}
+                    >
+                      <RotateCcw size={16} /> <span>Back</span>
+                    </motion.div>
                   </Button>
                 </div>
               </motion.div>

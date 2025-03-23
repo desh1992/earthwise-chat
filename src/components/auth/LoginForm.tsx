@@ -1,189 +1,163 @@
 
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
-import { AuthContext } from '@/App';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { authService } from '@/services/auth';
+import { RotatingLines } from 'react-loader-spinner';
 import PasswordInput from './PasswordInput';
-import { formVariants } from './form-animations';
+import { formAnimations } from './form-animations';
 
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(1, { message: 'Password is required' }),
-  rememberMe: z.boolean().default(false),
+// Define form schema
+const formSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' })
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { setIsAuthenticated, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '', rememberMe: false },
-    mode: 'onChange',
+  // Initialize form
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const user = await authService.login(values.email, values.password);
-      setUser(user);
-      setIsAuthenticated(true);
-      
-      if (values.rememberMe) {
-        localStorage.setItem('user', JSON.stringify(user));
-      }
-      
-      toast({ title: 'Success', description: 'Login successful!' });
+      await authService.login(data.email, data.password);
       navigate('/home');
-    } catch (error) {
-      toast({ 
-        title: 'Error', 
-        description: 'Account does not exist',
-        variant: 'destructive'
-      });
+    } catch (err) {
+      setError('Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <motion.div 
-          className="space-y-4"
-          custom={1}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={formAnimations.container}
+      className="w-full max-w-md space-y-6"
+    >
+      <div className="space-y-2 text-center">
+        <motion.h2 
+          className="text-3xl font-bold"
+          variants={formAnimations.item}
         >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Email
-                  </FormLabel>
+          Welcome Back
+        </motion.h2>
+        <motion.p 
+          className="text-muted-foreground"
+          variants={formAnimations.item}
+        >
+          Enter your credentials to access your account
+        </motion.p>
+      </div>
+
+      {error && (
+        <motion.div variants={formAnimations.item}>
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </motion.div>
+      )}
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <motion.div variants={formAnimations.item}>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="you@example.com"
+                    <Input 
+                      placeholder="Enter your email" 
+                      {...field} 
                       autoComplete="email"
-                      className={`pt-6 pb-2 rounded-2xl shadow-sm ${
-                        field.value ? 'border-primary' : ''
-                      }`}
-                      {...field}
+                      className="focus:ring-2 focus:ring-primary"
                     />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="space-y-4"
-          custom={2}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Password
-                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
+          <motion.div variants={formAnimations.item}>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <PasswordInput field={field} />
+                    <PasswordInput 
+                      placeholder="Enter your password" 
+                      {...field} 
+                      autoComplete="current-password"
+                      className="focus:ring-2 focus:ring-primary"
+                    />
                   </FormControl>
-                </div>
-                <div className="flex justify-end">
-                  <Button 
-                    variant="link" 
-                    className="text-xs p-0 h-auto font-normal text-muted-foreground" 
-                    type="button"
-                  >
-                    Forgot password?
-                  </Button>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div
-          custom={3}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
+          <motion.div variants={formAnimations.item}>
+            <Button 
+              type="submit" 
+              className="w-full transition-all duration-300 hover:scale-[1.02] hover:shadow-md active:scale-[0.98] bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <RotatingLines width="20" strokeColor="white" strokeWidth="3" />
+                  <span className="ml-2">Signing In...</span>
+                </span>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+          </motion.div>
+        </form>
+      </Form>
+
+      <motion.div 
+        className="text-center text-sm"
+        variants={formAnimations.item}
+      >
+        <span className="text-muted-foreground">Don't have an account? </span>
+        <Button 
+          variant="link" 
+          className="p-0 font-semibold transition-colors duration-300 hover:text-primary/80"
+          onClick={() => navigate('/signup')}
         >
-          <FormField
-            control={form.control}
-            name="rememberMe"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="text-sm font-normal cursor-pointer">Remember me</FormLabel>
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div
-          custom={4}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <Button 
-            type="submit" 
-            className="w-full rounded-2xl py-6" 
-            disabled={isLoading || !form.formState.isValid}
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                Signing in...
-              </div>
-            ) : 'Sign In'}
-          </Button>
-        </motion.div>
-      </form>
-    </Form>
+          Sign Up
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 };
 

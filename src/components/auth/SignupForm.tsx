@@ -1,251 +1,212 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { authService } from '@/services/auth';
+import { RotatingLines } from 'react-loader-spinner';
 import PasswordInput from './PasswordInput';
-import { formVariants } from './form-animations';
+import { formAnimations } from './form-animations';
 
-const signupSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
-  email: z.string().email({ message: 'Invalid email address' }),
-  company: z.string().min(1, { message: 'Company name is required' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters' })
-    .regex(/.*[A-Za-z].*/, { message: 'Password must contain at least one letter' })
-    .regex(/.*\d.*/, { message: 'Password must contain at least one number' }),
-  confirmPassword: z.string().min(1, { message: 'Please confirm your password' }),
+// Define form schema
+const formSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  company: z.string().min(2, { message: 'Company name must be at least 2 characters' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+  confirmPassword: z.string().min(6, { message: 'Password must be at least 6 characters' })
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
 
-type SignupFormValues = z.infer<typeof signupSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 const SignupForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  
-  const form = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: { name: '', email: '', company: '', password: '', confirmPassword: '' },
-    mode: 'onChange',
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize form
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      company: '',
+      password: '',
+      confirmPassword: ''
+    }
   });
 
-  const onSubmit = async (values: SignupFormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      await authService.signup(values.email, values.company, values.password, values.name);
-      toast({ title: 'Success', description: 'Account created successfully!' });
-      navigate('/login');
-    } catch (error) {
-      toast({ 
-        title: 'Error', 
-        description: 'There was a problem creating your account',
-        variant: 'destructive'
-      });
+      await authService.signup(data.email, data.company, data.password);
+      navigate('/login', { state: { message: 'Account created successfully! Please log in.' } });
+    } catch (err) {
+      setError('Failed to create account. This email might already be registered.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <motion.div 
-          className="space-y-2"
-          custom={1}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={formAnimations.container}
+      className="w-full max-w-md space-y-6"
+    >
+      <div className="space-y-2 text-center">
+        <motion.h2 
+          className="text-3xl font-bold"
+          variants={formAnimations.item}
         >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      className={`pt-6 pb-2 rounded-2xl shadow-sm ${
-                        field.value ? 'border-primary' : ''
-                      }`}
-                      {...field}
-                    />
-                  </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          Create an Account
+        </motion.h2>
+        <motion.p 
+          className="text-muted-foreground"
+          variants={formAnimations.item}
+        >
+          Enter your details to get started
+        </motion.p>
+      </div>
+
+      {error && (
+        <motion.div variants={formAnimations.item}>
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={2}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Email
-                  </FormLabel>
+      )}
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <motion.div variants={formAnimations.item}>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="you@example.com"
+                    <Input 
+                      placeholder="Enter your email" 
+                      {...field} 
                       autoComplete="email"
-                      className={`pt-6 pb-2 rounded-2xl shadow-sm ${
-                        field.value ? 'border-primary' : ''
-                      }`}
-                      {...field}
+                      className="focus:ring-2 focus:ring-primary"
                     />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={3}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
-            name="company"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Company Name
-                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
+          <motion.div variants={formAnimations.item}>
+            <FormField
+              control={form.control}
+              name="company"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Acme Inc."
-                      className={`pt-6 pb-2 rounded-2xl shadow-sm ${
-                        field.value ? 'border-primary' : ''
-                      }`}
-                      {...field}
+                    <Input 
+                      placeholder="Enter your company name" 
+                      {...field} 
+                      autoComplete="organization"
+                      className="focus:ring-2 focus:ring-primary"
                     />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={4}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Password
-                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
+          <motion.div variants={formAnimations.item}>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <PasswordInput field={field} placeholder="Create a password" autoComplete="new-password" />
+                    <PasswordInput 
+                      placeholder="Create a password" 
+                      {...field} 
+                      autoComplete="new-password"
+                      className="focus:ring-2 focus:ring-primary"
+                    />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={5}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <div className="relative">
-                  <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                    field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                  }`}>
-                    Confirm Password
-                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
+          <motion.div variants={formAnimations.item}>
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <PasswordInput field={field} placeholder="Confirm your password" autoComplete="new-password" />
+                    <PasswordInput 
+                      placeholder="Confirm your password" 
+                      {...field} 
+                      autoComplete="new-password"
+                      className="focus:ring-2 focus:ring-primary"
+                    />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div
-          custom={6}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-          className="pt-2"
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </motion.div>
+
+          <motion.div variants={formAnimations.item}>
+            <Button 
+              type="submit" 
+              className="w-full transition-all duration-300 hover:scale-[1.02] hover:shadow-md active:scale-[0.98] bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <RotatingLines width="20" strokeColor="white" strokeWidth="3" />
+                  <span className="ml-2">Creating Account...</span>
+                </span>
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+          </motion.div>
+        </form>
+      </Form>
+
+      <motion.div 
+        className="text-center text-sm"
+        variants={formAnimations.item}
+      >
+        <span className="text-muted-foreground">Already have an account? </span>
+        <Button 
+          variant="link" 
+          className="p-0 font-semibold transition-colors duration-300 hover:text-primary/80"
+          onClick={() => navigate('/login')}
         >
-          <Button 
-            type="submit" 
-            className="w-full rounded-2xl py-6" 
-            disabled={isLoading || !form.formState.isValid}
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                Creating account...
-              </div>
-            ) : 'Create Account'}
-          </Button>
-        </motion.div>
-      </form>
-    </Form>
+          Sign In
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 };
 

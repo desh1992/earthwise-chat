@@ -11,6 +11,7 @@ interface QuestionSelectorProps {
 
 const QuestionSelector = ({ industryId, onSelectQuestion }: QuestionSelectorProps) => {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const questions = industryService.getQuestionsByIndustry(industryId);
 
   const handleSelect = (question: string) => {
@@ -29,11 +30,29 @@ const QuestionSelector = ({ industryId, onSelectQuestion }: QuestionSelectorProp
               selectedQuestion === question ? 'ring-2 ring-primary' : ''
             }`}
             initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={{ 
+              opacity: 1, 
+              x: 0,
+              scale: hoveredIndex === index ? 1.02 : 1,
+              boxShadow: hoveredIndex === index ? "0 4px 12px rgba(0,0,0,0.1)" : "none"
+            }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
             onClick={() => handleSelect(question)}
+            onHoverStart={() => setHoveredIndex(index)}
+            onHoverEnd={() => setHoveredIndex(null)}
           >
-            <MessageSquare size={20} className="text-primary mr-3 flex-shrink-0" />
+            <motion.div
+              animate={{ 
+                rotate: hoveredIndex === index ? [0, -10, 10, -10, 0] : 0,
+                scale: hoveredIndex === index ? 1.1 : 1
+              }}
+              transition={{ 
+                duration: hoveredIndex === index ? 0.5 : 0.3,
+                type: hoveredIndex === index ? "spring" : "tween"
+              }}
+            >
+              <MessageSquare size={20} className="text-primary mr-3 flex-shrink-0" />
+            </motion.div>
             <p>{question}</p>
           </motion.div>
         ))}
