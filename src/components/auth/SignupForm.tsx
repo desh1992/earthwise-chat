@@ -14,24 +14,15 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
+import { authService } from '@/services/auth';
 import PasswordInput from './PasswordInput';
-import AccountPrompt from './AccountPrompt';
-import { formVariants } from './form-animations';
 
 const signupSchema = z.object({
   name: z.string().min(1, { message: 'Name is required' }),
   email: z.string().email({ message: 'Invalid email address' }),
   company: z.string().min(1, { message: 'Company name is required' }),
-  userType: z.enum(['audience', 'presenter'], { required_error: 'Please select a user type' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' })
     .regex(/.*[A-Za-z].*/, { message: 'Password must contain at least one letter' })
     .regex(/.*\d.*/, { message: 'Password must contain at least one number' }),
@@ -43,58 +34,39 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
+const formVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.5,
+      ease: [0.4, 0.0, 0.2, 1],
+    },
+  }),
+};
+
 const SignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { 
-      name: '', 
-      email: '', 
-      company: '', 
-      userType: 'audience', 
-      password: '', 
-      confirmPassword: '' 
-    },
+    defaultValues: { name: '', email: '', company: '', password: '', confirmPassword: '' },
     mode: 'onChange',
   });
 
   const onSubmit = async (values: SignupFormValues) => {
     setIsLoading(true);
     try {
-      // Call the backend API for signup
-      const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: values.email,
-          company_name: values.company,
-          password: values.password,
-          name: values.name,
-          user_type: values.userType
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
-
+      await authService.signup(values.email, values.company, values.password);
       toast({ title: 'Success', description: 'Account created successfully!' });
       navigate('/login');
     } catch (error) {
-      let errorMessage = 'There was a problem creating your account';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
       toast({ 
         title: 'Error', 
-        description: errorMessage,
+        description: 'There was a problem creating your account',
         variant: 'destructive'
       });
     } finally {
@@ -211,25 +183,15 @@ const SignupForm = () => {
         >
           <FormField
             control={form.control}
-            name="userType"
+            name="password"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>User Type</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value} 
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full cursor-pointer">
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="audience" className="cursor-pointer">Audience</SelectItem>
-                    <SelectItem value="presenter" className="cursor-pointer">Presenter</SelectItem>
-                  </SelectContent>
-                </Select>
+              <FormItem className="relative">
+                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
+                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
+                }`}>
+                  Password
+                </FormLabel>
+                <PasswordInput field={field} placeholder="Create a password" autoComplete="new-password" />
                 <FormMessage />
               </FormItem>
             )}
@@ -245,36 +207,6 @@ const SignupForm = () => {
         >
           <FormField
             control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel className={`absolute z-10 left-3 text-muted-foreground transition-all duration-200 ${
-                  field.value ? '-top-6 left-0 text-sm text-foreground' : 'top-2.5'
-                }`}>
-                  Password
-                </FormLabel>
-                <FormControl>
-                  <PasswordInput 
-                    field={field} 
-                    placeholder="Create a password" 
-                    autoComplete="new-password" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={6}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
             name="confirmPassword"
             render={({ field }) => (
               <FormItem className="relative">
@@ -283,13 +215,7 @@ const SignupForm = () => {
                 }`}>
                   Confirm Password
                 </FormLabel>
-                <FormControl>
-                  <PasswordInput 
-                    field={field} 
-                    placeholder="Confirm your password" 
-                    autoComplete="new-password" 
-                  />
-                </FormControl>
+                <PasswordInput field={field} placeholder="Confirm your password" autoComplete="new-password" />
                 <FormMessage />
               </FormItem>
             )}
@@ -297,7 +223,7 @@ const SignupForm = () => {
         </motion.div>
         
         <motion.div
-          custom={7}
+          custom={6}
           variants={formVariants}
           initial="hidden"
           animate="visible"
@@ -305,7 +231,7 @@ const SignupForm = () => {
         >
           <Button 
             type="submit" 
-            className="w-full rounded-2xl py-6 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98]" 
+            className="w-full rounded-2xl py-6" 
             disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (
@@ -317,10 +243,6 @@ const SignupForm = () => {
           </Button>
         </motion.div>
       </form>
-      
-      <div className="mt-6">
-        <AccountPrompt type="signup" />
-      </div>
     </Form>
   );
 };
