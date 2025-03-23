@@ -5,12 +5,13 @@ import { Input } from '@/components/ui/input';
 import { FormControl } from '@/components/ui/form';
 
 interface PasswordInputProps {
-  field: any;
   placeholder?: string;
   autoComplete?: string;
+  className?: string;
+  [key: string]: any; // This allows for spreading other props
 }
 
-const PasswordInput = ({ field, placeholder = "••••••••", autoComplete = "current-password" }: PasswordInputProps) => {
+const PasswordInput = ({ placeholder = "••••••••", autoComplete = "current-password", className, ...props }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -24,8 +25,8 @@ const PasswordInput = ({ field, placeholder = "••••••••", autoCo
           type={showPassword ? "text" : "password"}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          {...field}
-          className="pr-10"
+          className={`pr-10 ${className || ''}`}
+          {...props}
         />
       </FormControl>
       <button
