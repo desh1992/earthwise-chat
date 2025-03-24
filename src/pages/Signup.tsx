@@ -106,7 +106,7 @@ const Signup = () => {
                 transition={{ delay: 1 }}
               >
                 <img 
-                  src="/src/assets/cyquent-logo.png" 
+                  src="/cyquent-logo.png" 
                   alt="Cyquent Inc." 
                   className="h-12 mb-2"
                 />

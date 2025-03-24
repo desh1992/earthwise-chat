@@ -80,7 +80,7 @@ const Index = () => {
             transition={{ delay: 0.7, duration: 0.6 }}
           >
             <img 
-              src="/src/assets/cyquent-logo.png" 
+              src="/cyquent-logo.png" 
               alt="Cyquent Inc." 
               className="h-24 mb-3"
             />
