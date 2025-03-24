@@ -1,12 +1,11 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { llmService } from '@/services/llm';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -15,11 +14,18 @@ interface Message {
   stats?: any;
 }
 
-const Chat = ({ 
-  onNewStats 
-}: { 
-  onNewStats: (stats: any) => void 
-}) => {
+interface ChatProps {
+  onNewStats: (stats: any) => void;
+  parameters: {
+    temperature: number;
+    top_p: number;
+    max_tokens: number;
+    frequency_penalty: number;
+    presence_penalty: number;
+  };
+}
+
+const Chat = ({ onNewStats, parameters }: ChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,17 +54,38 @@ const Chat = ({
     setIsLoading(true);
 
     try {
-      const { response, stats } = await llmService.getResponse(input);
-      
+      const payload = {
+        message: input,
+        temperature: parameters.temperature,
+        top_p: parameters.top_p,
+        max_tokens: parameters.max_tokens,
+        frequency_penalty: parameters.frequency_penalty,
+        presence_penalty: parameters.presence_penalty,
+      };
+
+      const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/chat/sendMessage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const data = await response.json();
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response,
-        stats,
+        content: data.response,
+        stats: data.metrics,
       };
-      
+
       setMessages((prev) => [...prev, assistantMessage]);
-      onNewStats(stats);
+      onNewStats(data.metrics);
     } catch (error) {
       console.error('Error getting response:', error);
     } finally {
@@ -80,13 +107,13 @@ const Chat = ({
                 transition={{ duration: 0.3 }}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-primary text-white' : 'glass-card'} rounded-2xl px-4 py-3`}>
-                  <p className="text-sm">{message.content}</p>
+                <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-primary text-white' : 'glass-card'} rounded-2xl px-4 py-3 prose prose-sm max-w-none text-foreground`}>
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
-          
+
           {isLoading && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -115,11 +142,11 @@ const Chat = ({
               </div>
             </motion.div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-      
+
       <form onSubmit={handleSubmit} className="p-4 border-t">
         <div className="flex space-x-2">
           <Input

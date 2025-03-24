@@ -11,6 +11,7 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import ReportPage from "./pages/ReportPage";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const AnimatedRoutes = () => {
         <Route path="/home" element={<Home />} />
         {/* <Route path="/home" element={<ProtectedRoute element={<Home />} />} /> */}
         <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+        <Route path="/report"  element={<ReportPage />}  />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
