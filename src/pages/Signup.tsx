@@ -100,11 +100,16 @@ const Signup = () => {
                 transition={{ delay: 0.8, duration: 0.6 }}
               />
               <motion.p
-                className="text-center text-base font-medium text-muted-foreground mt-2"
+                className="text-center text-base font-medium text-muted-foreground mt-2 flex flex-col items-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
               >
+                <img 
+                  src="/src/assets/cyquent-logo.png" 
+                  alt="Cyquent Inc." 
+                  className="h-12 mb-2"
+                />
                 Powered by Cyquent AI
               </motion.p>
             </motion.div>

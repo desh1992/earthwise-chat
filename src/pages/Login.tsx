@@ -122,11 +122,16 @@ const Login = () => {
               </div>
               
               <motion.p
-                className="text-center text-base font-medium text-muted-foreground mt-6"
+                className="text-center text-base font-medium text-muted-foreground mt-6 flex flex-col items-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
               >
+                <img 
+                  src="/src/assets/cyquent-logo.png" 
+                  alt="Cyquent Inc." 
+                  className="h-12 mb-2"
+                />
                 Powered by Cyquent AI
               </motion.p>
             </motion.div>

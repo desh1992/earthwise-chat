@@ -73,6 +73,22 @@ const Index = () => {
             Earth-themed comparison tool. See real-time stats, responses, and performance metrics.
           </motion.p>
           
+          <motion.div 
+            className="mb-8 flex flex-col items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+          >
+            <img 
+              src="/src/assets/cyquent-logo.png" 
+              alt="Cyquent Inc." 
+              className="h-24 mb-3"
+            />
+            <h2 className="text-2xl md:text-3xl font-bold text-primary">
+              A product of Cyquent Inc.
+            </h2>
+          </motion.div>
+          
           <motion.div
             className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4"
             initial={{ opacity: 0, y: 20 }}
