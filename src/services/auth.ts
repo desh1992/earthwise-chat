@@ -9,7 +9,7 @@ interface User {
 const API_BASE_URL = 'https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/auth';
 
 export const authService = {
-  async signup(email: string, company: string, password: string, name?: string): Promise<void> {
+  async signup(email: string, company: string, password: string, name: string): Promise<void> {
     try {
       const response = await fetch(`${API_BASE_URL}/signup`, {
         method: 'POST',
@@ -17,6 +17,7 @@ export const authService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          name,
           email,
           company_name: company, // Note the difference in field name
           password,

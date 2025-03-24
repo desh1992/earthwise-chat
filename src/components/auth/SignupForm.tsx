@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,8 +13,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/use-toast';
-import { authService } from '@/services/auth';
 import PasswordInput from './PasswordInput';
 
 const signupSchema = z.object({
@@ -47,34 +44,29 @@ const formVariants = {
 };
 
 interface SignupFormProps {
-  onSubmit: (values: { email: string; company: string; password: string }) => void;
+  onSubmit: (values: { email: string; company: string; password: string; name: string }) => void;
   loading: boolean;
 }
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: { name: '', email: '', company: '', password: '', confirmPassword: '' },
     mode: 'onChange',
   });
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const values = {
-      email: formData.get('email') as string,
-      company: formData.get('company') as string,
-      password: formData.get('password') as string,
-    };
-    onSubmit(values);
+  // ✅ Use form's handleSubmit and values
+  const handleValidSubmit = (data: SignupFormValues) => {
+    const { name, email, company, password } = data;
+    onSubmit({ name, email, company, password });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleValidSubmit)} className="space-y-4">
+        {/* Name */}
         <motion.div 
           className="space-y-2"
           custom={1}
@@ -106,14 +98,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
             )}
           />
         </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={2}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
+
+        {/* Email */}
+        <motion.div className="space-y-2" custom={2} variants={formVariants} initial="hidden" animate="visible">
           <FormField
             control={form.control}
             name="email"
@@ -139,14 +126,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
             )}
           />
         </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={3}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
+
+        {/* Company */}
+        <motion.div className="space-y-2" custom={3} variants={formVariants} initial="hidden" animate="visible">
           <FormField
             control={form.control}
             name="company"
@@ -171,14 +153,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
             )}
           />
         </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={4}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
+
+        {/* Password */}
+        <motion.div className="space-y-2" custom={4} variants={formVariants} initial="hidden" animate="visible">
           <FormField
             control={form.control}
             name="password"
@@ -195,14 +172,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
             )}
           />
         </motion.div>
-        
-        <motion.div 
-          className="space-y-2"
-          custom={5}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
+
+        {/* Confirm Password */}
+        <motion.div className="space-y-2" custom={5} variants={formVariants} initial="hidden" animate="visible">
           <FormField
             control={form.control}
             name="confirmPassword"
@@ -219,7 +191,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
             )}
           />
         </motion.div>
-        
+
+        {/* Submit Button */}
         <motion.div
           custom={6}
           variants={formVariants}
@@ -230,9 +203,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, loading }) => {
           <Button 
             type="submit" 
             className="w-full rounded-2xl py-6" 
-            disabled={isLoading || !form.formState.isValid}
+            disabled={loading || !form.formState.isValid}
           >
-            {isLoading ? (
+            {loading ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                 Creating account...

@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { llmService } from '@/services/llm';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -14,20 +14,18 @@ interface Message {
   stats?: any;
 }
 
-const StatsDisplay = ({ metrics }: { metrics: any }) => {
-  if (!metrics) return null; // Handle case where metrics might be null
+interface ChatProps {
+  onNewStats: (stats: any) => void;
+  parameters: {
+    temperature: number;
+    top_p: number;
+    max_tokens: number;
+    frequency_penalty: number;
+    presence_penalty: number;
+  };
+}
 
-  return (
-    <div className="stats-display">
-    </div>
-  );
-};
-
-const Chat = ({ 
-  onNewStats 
-}: { 
-  onNewStats: (stats: any) => void 
-}) => {
+const Chat = ({ onNewStats, parameters }: ChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -56,17 +54,15 @@ const Chat = ({
     setIsLoading(true);
 
     try {
-      // Prepare the payload for the API call
       const payload = {
         message: input,
-        temperature: 0.7,
-        top_p: 1,
-        max_tokens: 512,
-        frequency_penalty: 0,
-        presence_penalty: 0,
+        temperature: parameters.temperature,
+        top_p: parameters.top_p,
+        max_tokens: parameters.max_tokens,
+        frequency_penalty: parameters.frequency_penalty,
+        presence_penalty: parameters.presence_penalty,
       };
 
-      // Make the API call to send the message
       const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/chat/sendMessage', {
         method: 'POST',
         headers: {
@@ -75,28 +71,21 @@ const Chat = ({
         body: JSON.stringify(payload),
       });
 
-      // Check if the response is OK
       if (!response.ok) {
         throw new Error('Failed to send message');
       }
 
-      // Parse the response
       const data = await response.json();
 
-      // Create the assistant message based on the new response structure
       const assistantMessage: Message = {
-        id: Date.now().toString(),
+        id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.response, // Use the response from the API
-        stats: data.metrics, // Include metrics for display
+        content: data.response,
+        stats: data.metrics,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-      onNewStats(data.metrics); // Call the stats handler with metrics
-
-      // Optionally, you can log the entire response for debugging
-      console.log('API Response:', data);
-
+      onNewStats(data.metrics);
     } catch (error) {
       console.error('Error getting response:', error);
     } finally {
@@ -118,14 +107,13 @@ const Chat = ({
                 transition={{ duration: 0.3 }}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-primary text-white' : 'glass-card'} rounded-2xl px-4 py-3`}>
-                  <p className="text-sm">{message.content}</p>
-                  {message.role === 'assistant' && <StatsDisplay metrics={message.stats} />}
+                <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-primary text-white' : 'glass-card'} rounded-2xl px-4 py-3 prose prose-sm max-w-none text-foreground`}>
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
-          
+
           {isLoading && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -154,11 +142,11 @@ const Chat = ({
               </div>
             </motion.div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-      
+
       <form onSubmit={handleSubmit} className="p-4 border-t">
         <div className="flex space-x-2">
           <Input

@@ -1,17 +1,14 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
-import { industryService } from '@/services/industry';
 
 interface QuestionSelectorProps {
-  industryId: string;
+  questions: string[];
   onSelectQuestion: (question: string) => void;
 }
 
-const QuestionSelector = ({ industryId, onSelectQuestion }: QuestionSelectorProps) => {
+const QuestionSelector = ({ questions, onSelectQuestion }: QuestionSelectorProps) => {
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
-  const questions = industryService.getQuestionsByIndustry(industryId);
 
   const handleSelect = (question: string) => {
     setSelectedQuestion(question);
@@ -30,7 +27,7 @@ const QuestionSelector = ({ industryId, onSelectQuestion }: QuestionSelectorProp
             }`}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
             onClick={() => handleSelect(question)}
           >
             <MessageSquare size={20} className="text-primary mr-3 flex-shrink-0" />

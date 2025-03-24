@@ -34,10 +34,10 @@ const AuthForm = ({ type }: AuthFormProps) => {
     }
   };
 
-  const onSignupSubmit = async (values: { email: string, company: string, password: string }) => {
+  const onSignupSubmit = async (values: { email: string, company: string, password: string, name: string }) => {
     setIsLoading(true);
     try {
-      await authService.signup(values.email, values.company, values.password);
+      await authService.signup(values.email, values.company, values.password, values.name);
       toast({ title: 'Success', description: 'Account created successfully! Redirecting to login...' });
       navigate('/login'); // Redirect to login after successful signup
     } catch (error) {
