@@ -1,4 +1,3 @@
-
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -64,7 +63,7 @@ const Signup = () => {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
                   <span className="text-white text-xl font-bold">L</span>
                 </div>
-                <span className="ml-3 text-2xl font-medium">LLM Compare</span>
+                <span className="ml-3 text-2xl font-medium">CoreEval</span>
               </div>
             </motion.div>
             
@@ -100,6 +99,14 @@ const Signup = () => {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
               />
+              <motion.p
+                className="text-center text-base font-medium text-muted-foreground mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                Powered by Cyquent AI
+              </motion.p>
             </motion.div>
           </div>
         </motion.div>

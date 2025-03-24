@@ -33,7 +33,7 @@ const Header = () => {
           >
             <span className="text-white font-bold">L</span>
           </motion.div>
-          <span className="font-medium text-lg">LLM Compare</span>
+          <span className="font-medium text-lg">CoreEval</span>
         </Link>
 
         <div className="flex items-center space-x-6">
