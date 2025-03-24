@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReactMarkdown from 'react-markdown';
+import { apiFetch } from '@/services/apiClient'; // adjust path if needed
 
 interface Message {
   id: string;
@@ -42,17 +43,17 @@ const Chat = ({ onNewStats, parameters }: ChatProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-
+  
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content: input,
     };
-
+  
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-
+  
     try {
       const payload = {
         message: input,
@@ -62,28 +63,19 @@ const Chat = ({ onNewStats, parameters }: ChatProps) => {
         frequency_penalty: parameters.frequency_penalty,
         presence_penalty: parameters.presence_penalty,
       };
-
-      const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/chat/sendMessage', {
+  
+      const data = await apiFetch<{ response: string; metrics?: any }>('/chat/sendMessage', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      const data = await response.json();
-
+  
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.response,
         stats: data.metrics,
       };
-
+  
       setMessages((prev) => [...prev, assistantMessage]);
       onNewStats(data.metrics);
     } catch (error) {
@@ -92,6 +84,7 @@ const Chat = ({ onNewStats, parameters }: ChatProps) => {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="flex flex-col h-full">

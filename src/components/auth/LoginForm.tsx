@@ -119,39 +119,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
                   Password
                 </FormLabel>
                 <PasswordInput field={field} />
-                <div className="flex justify-end">
-                  <Button 
-                    variant="link" 
-                    className="text-xs p-0 h-auto font-normal text-muted-foreground" 
-                    type="button"
-                  >
-                    Forgot password?
-                  </Button>
-                </div>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-        </motion.div>
-        
-        <motion.div
-          custom={3}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <FormField
-            control={form.control}
-            name="rememberMe"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="text-sm font-normal cursor-pointer">Remember me</FormLabel>
               </FormItem>
             )}
           />

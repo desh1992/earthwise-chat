@@ -1,5 +1,4 @@
-// src/services/llm-compare.ts
-
+import { apiFetch } from "@/services/apiClient";
 
 const COLORS = {
   chatgpt: 'bg-green-500',
@@ -23,39 +22,36 @@ const DISPLAY_NAMES = {
 };
 
 const llmCompareService = {
-  getResponsesForQuestion: async (prompt: string, temperature = 0.8, max_tokens = 300) => {
+  getResponsesForQuestion: async (
+    prompt: string,
+    temperature = 0.8,
+    max_tokens = 300
+  ) => {
     const payload = { prompt, temperature, max_tokens };
 
-    const response = await fetch('https://llm-compare-backend-0b16218aa15f.herokuapp.com/api/compare/compare', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // Use interceptor-based fetch
+    const data = await apiFetch<any>("/compare/compare", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch responses: ${response.statusText}`);
-    }
-
-    const data = await response.json();
 
     // Map the model responses to a consistent format for the frontend
     return Object.entries(data).map(([modelId, modelData]: any) => ({
       modelId,
-      modelName: modelData.response.model,
-      element: modelId, // or use a prettier name mapping if needed
-      color: 'bg-gray-200', // placeholder color, you can assign based on modelId
+      modelName: DISPLAY_NAMES[modelId] || modelId,
+      element: ELEMENTS[modelId] || modelId,
+      color: COLORS[modelId] || 'bg-gray-200',
       response: modelData.response.response,
       metrics: {
         speed: modelData.time_seconds,
         ...modelData.response.metrics,
       },
       prosCons: {
-        pros: [], // optional: placeholder for now
+        pros: [],
         cons: [],
       },
     }));
   },
 };
+
 export { llmCompareService };

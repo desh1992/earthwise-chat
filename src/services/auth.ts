@@ -66,9 +66,15 @@ export const authService = {
       console.log('Parsed Login Data:', data);
 
       // Store the access token in localStorage
-      if (data.access_token) {
+      if (data) {
+        // Store user information in localStorage
+        localStorage.setItem('user_email', data.email);
+        localStorage.setItem('user_company', data.company_name || data.company || '');
+        localStorage.setItem('user_name', data.name || '');
+        localStorage.setItem('user_id', data.id || '');
         localStorage.setItem('access_token', data.access_token);
       }
+
 
       // Return user information
       // Note: You may need to adjust this based on the actual response structure

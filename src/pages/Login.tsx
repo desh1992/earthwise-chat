@@ -17,7 +17,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Background elements */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-[-1] pointer-events-none">
         <motion.div 
           className="absolute top-1/4 right-0 w-1/3 h-1/3 rounded-full bg-blue-50 blur-3xl"
           animate={{ 
@@ -61,7 +61,7 @@ const Login = () => {
             >
               <div className="inline-flex items-center">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-                  <span className="text-white text-xl font-bold">L</span>
+                  <span className="text-white text-xl font-bold">C</span>
                 </div>
                 <span className="ml-3 text-2xl font-medium">CoreEval</span>
               </div>

@@ -26,6 +26,8 @@ interface AuthContextType {
 interface User {
   email: string;
   company: string;
+  name: string;
+  id: string;
 }
 
 // Define the context
@@ -39,15 +41,23 @@ export const AuthContext = createContext<AuthContextType>({
 // AuthProvider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const email = localStorage.getItem('user_email');
+    const company = localStorage.getItem('user_company');
+    const name = localStorage.getItem('user_name');
+    const id = localStorage.getItem('user_id');
+
+    if (email || company || name || id) {
+      return { email, company, name, id };
+    }
+
+    return null;
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
       setIsAuthenticated(true);
-      // Optionally decode the token to get user info
-      // const decodedUser = decodeToken(token); // Implement this function if needed
-      // setUser(decodedUser);
     } else {
       setIsAuthenticated(false);
       setUser(null);
@@ -70,15 +80,11 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const location = useLocation();
 
-  // Check for token in localStorage
   const token = localStorage.getItem('access_token');
 
-  // If not authenticated and no token, redirect to login
   if (!isAuthenticated && !token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
-  // Optionally, you can add more logic to verify the token's validity here
 
   return <>{element}</>;
 };
@@ -86,7 +92,7 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
 // Animation wrapper for routes
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -94,9 +100,8 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
-        {/* <Route path="/home" element={<ProtectedRoute element={<Home />} />} /> */}
         <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
-        <Route path="/report"  element={<ReportPage />}  />
+        <Route path="/report" element={<ReportPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
@@ -104,18 +109,6 @@ const AnimatedRoutes = () => {
 };
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
-  // Check localStorage for auth status on app load
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

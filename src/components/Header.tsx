@@ -31,7 +31,7 @@ const Header = () => {
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
-            <span className="text-white font-bold">L</span>
+            <span className="text-white font-bold">C</span>
           </motion.div>
           <span className="font-medium text-lg">CoreEval</span>
         </Link>
