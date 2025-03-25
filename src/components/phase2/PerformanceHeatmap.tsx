@@ -3,12 +3,24 @@ import { Info } from 'lucide-react';
 
 interface Props {
   evaluation: any;
+  stage: string;
   industry?: string;
 }
 
-const colors = {
-  Coherence: '#60a5fa',     // blue
-  Correctness: '#10b981',   // green
+const colors: Record<string, string> = {
+  Clarity: '#f87171',
+  Accuracy: '#facc15',
+  Coherence: '#60a5fa',
+  Correctness: '#10b981',
+  Precision: '#6366f1',
+  Fluency: '#06b6d4',
+  Style: '#a78bfa',
+  Alignment: '#ec4899',
+  Completeness: '#eab308',
+  Novelty: '#34d399',
+  Surprise: '#f472b6',
+  Sensitivity: '#f97316',
+  Neutrality: '#818cf8',
 };
 
 const displayNames = {
@@ -18,9 +30,22 @@ const displayNames = {
   claude: 'Fire AI',
 };
 
-const PerformanceHeatmap = ({ evaluation, industry }: Props) => {
-  const topModel = Object.entries(evaluation).reduce((best, [key, val]: any) =>
-    val.proprietaryScore > best.score ? { key, score: val.proprietaryScore } : best,
+const STAGE_CRITERIA: Record<string, [string, string]> = {
+  Comprehension: ['Clarity', 'Accuracy'],
+  Reasoning: ['Coherence', 'Correctness'],
+  Technical: ['Precision', 'Correctness'],
+  Language: ['Fluency', 'Style'],
+  'Instruction Following': ['Alignment', 'Completeness'],
+  Creativity: ['Novelty', 'Surprise'],
+  'Bias Awareness': ['Sensitivity', 'Neutrality'],
+};
+
+const PerformanceHeatmap = ({ evaluation, stage, industry }: Props) => {
+  const [metric1, metric2] = STAGE_CRITERIA[stage] || ['Metric A', 'Metric B'];
+
+  const topModel = Object.entries(evaluation).reduce(
+    (best, [key, val]: any) =>
+      val.proprietaryScore > best.score ? { key, score: val.proprietaryScore } : best,
     { key: '', score: -1 }
   ).key;
 
@@ -45,18 +70,22 @@ const PerformanceHeatmap = ({ evaluation, industry }: Props) => {
             <h3 className="text-md font-semibold text-center mb-3">{displayNames[model]}</h3>
 
             <div className="space-y-4">
-              {['Coherence', 'Correctness'].map((metric) => (
+              {[metric1, metric2].map((metric) => (
                 <div key={metric}>
                   <div className="text-sm mb-1 font-medium flex justify-between">
                     <span>{metric}</span>
-                    <span className="text-xs text-muted-foreground">{data[metric]}%</span>
+                    <span className="text-xs text-muted-foreground">
+                      {data[metric] ?? 0}%
+                    </span>
                   </div>
                   <div className="relative w-full bg-gray-100 h-4 rounded-full overflow-hidden">
                     <div
                       className="h-4 rounded-full transition-all"
                       style={{
-                        width: `${data[metric]}%`,
-                        background: `linear-gradient(90deg, ${colors[metric]}66, ${colors[metric]})`,
+                        width: `${data[metric] ?? 0}%`,
+                        background: `linear-gradient(90deg, ${colors[metric] ?? '#999'}66, ${
+                          colors[metric] ?? '#999'
+                        })`,
                       }}
                     />
                   </div>

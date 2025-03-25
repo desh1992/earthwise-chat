@@ -163,7 +163,11 @@ const ResponseComparison = ({
             <DrawerContent className="p-6">
               <h4 className="text-lg font-semibold mb-4">Performance Evaluation</h4>
               {evaluationData ? (
-                <PerformanceHeatmap evaluation={evaluationData} industry={industryId} />
+                <PerformanceHeatmap
+                evaluation={evaluationData}
+                industry={industryId}
+                stage={getStageFromLayerKey(layerKey)} // ✅ Pass stage explicitly
+              />              
               ) : (
                 <div className="text-muted-foreground text-sm">Evaluating model performance...</div>
               )}
