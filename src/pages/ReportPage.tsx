@@ -27,6 +27,7 @@ const metrics = [
   'Creativity',
   'Bias Awareness',
 ];
+
 const models = ['chatgpt', 'gemini', 'llama', 'claude'];
 
 const modelLabels = {
@@ -112,7 +113,6 @@ const ReportPage = () => {
           LLM Comparison Report
         </h2>
 
-        {/* Gradient Definitions */}
         <svg width="0" height="0">
           <defs>
             <linearGradient id="reasoningGradient" x1="0" y1="0" x2="0" y2="1">
@@ -142,7 +142,6 @@ const ReportPage = () => {
           </defs>
         </svg>
 
-        {/* Tabs */}
         <Tabs value={selectedIndustry} onValueChange={setSelectedIndustry} className="w-full">
           <TabsList className="flex justify-center mb-6 flex-wrap">
             {industries.map((industry) => (
@@ -161,7 +160,7 @@ const ReportPage = () => {
                       {modelLabels[model]}{' '}
                       <span className="text-sm text-muted-foreground">({realNames[model]})</span>
                     </h3>
-                    <ResponsiveContainer width="100%" height={180}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <BarChart
                         data={metrics.map((metric) => ({
                           name: metric,
@@ -172,14 +171,16 @@ const ReportPage = () => {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis
                           dataKey="name"
-                          tickFormatter={(tick) =>
-                            tick === 'Instruction Following' ? 'Instruction\nFollowing' : tick
-                          }
+                          interval={0}
+                          angle={-20}
+                          textAnchor="end"
+                          height={50}
+                          tickMargin={10}
                         />
                         <YAxis domain={[0, (dataMax) => Math.min(100, Math.ceil(dataMax + 5))]} />
                         <Tooltip />
                         <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                          <LabelList dataKey="value" position="insideTop" fill="#000" />
+                          <LabelList dataKey="value" position="top" fill="#000" fontSize={12} />
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>

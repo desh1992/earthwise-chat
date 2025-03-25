@@ -91,8 +91,7 @@ export const authService = {
   
   // You might want to add a logout method
   logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
+    localStorage.clear();
   },
   
   // Helper method to check if user is authenticated
