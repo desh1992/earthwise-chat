@@ -55,11 +55,11 @@ const ResponseComparison = ({
   
 
   const handleEvaluateClick = async () => {
-    const selectedIndustry = industryService.getSelectedIndustry(); // 💡 Get industry from service
+    const effectiveIndustry = industryId || industryService.getSelectedIndustry() || 'unknown';
   
     const payload = {
-      stage: getStageFromLayerKey(layerKey), // ✅ dynamic stage
-      industry: selectedIndustry || 'unknown',
+      stage: getStageFromLayerKey(layerKey),
+      industry: effectiveIndustry,
       prompt: responses[0]?.prompt || 'Default prompt',
       responses: {},
       costs: {},
@@ -165,9 +165,9 @@ const ResponseComparison = ({
               {evaluationData ? (
                 <PerformanceHeatmap
                 evaluation={evaluationData}
-                industry={industryId}
-                stage={getStageFromLayerKey(layerKey)} // ✅ Pass stage explicitly
-              />              
+                industry={industryId || industryService.getSelectedIndustry() || 'unknown'}
+                stage={getStageFromLayerKey(layerKey)}
+              />                           
               ) : (
                 <div className="text-muted-foreground text-sm">Evaluating model performance...</div>
               )}
