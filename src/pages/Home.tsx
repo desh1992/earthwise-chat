@@ -11,6 +11,8 @@ import ParameterSliders from '@/components/ParameterSlider';
 import LayerPhase from '@/components/LayerPhase';
 import IndustrySelector from '@/components/phase2/IndustrySelector';
 import { Button } from '@/components/ui/button';
+import { apiFetch } from '@/services/apiClient'; // make sure this is imported
+import { Loader2 } from 'lucide-react';
 
 const MAX_PHASE = 7;
 
@@ -24,6 +26,7 @@ const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedIndustry, setSelectedIndustry] = useState('');
   const [canProceedToNext, setCanProceedToNext] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [parameters, setParameters] = useState({
     temperature: 0.7,
@@ -72,6 +75,19 @@ const Home = () => {
     }
   };
 
+  const handleGenerateReport = async () => {
+    try {
+      setLoading(true); // Start loader
+      const res = await apiFetch('/generate_report/report'); // GET request
+      localStorage.setItem('reportData', JSON.stringify(res));
+      navigate('/report');
+    } catch (error) {
+      console.error('Error generating report:', error);
+    } finally {
+      setLoading(false); // Stop loader
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -90,7 +106,7 @@ const Home = () => {
               if (currentPhase < MAX_PHASE) {
                 setCurrentPhase((prev) => prev + 1);
               } else {
-                alert('Generating report...');
+                handleGenerateReport();
               }
             }}
             canProceed={currentPhase === 1 || canProceedToNext}
@@ -190,12 +206,6 @@ const Home = () => {
                   />
                 </motion.div>
               )}
-
-              <div className="mt-12 flex justify-center">
-                <Button onClick={() => navigate('/report')}>
-                  📊 Generate Report
-                </Button>
-              </div>
             </>
           )}
         </div>

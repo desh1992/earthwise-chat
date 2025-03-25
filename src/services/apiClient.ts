@@ -2,6 +2,7 @@
 
 const BASE_URL = "https://llm-compare-backend-0b16218aa15f.herokuapp.com/api";
 
+// Define routes that do NOT require token
 const excludedRoutes = ["/login", "/signup"];
 
 export async function apiFetch<T>(
@@ -16,6 +17,7 @@ export async function apiFetch<T>(
     ...(options.headers || {}),
   };
 
+  // Attach Authorization token if required
   if (!isExcluded && accessToken) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }

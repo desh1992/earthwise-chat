@@ -13,10 +13,10 @@ interface ResponseCardProps {
     color: string;
     response: string;
     metrics: Record<string, number>;
-    prosCons: {
-      pros: string[];
-      cons: string[];
-    };
+    // prosCons: {
+    //   pros: string[];
+    //   cons: string[];
+    // };
   };
   isSelected: boolean;
   onSelect: () => void;
@@ -130,40 +130,41 @@ const ResponseCard = ({
           <h3 className="text-lg font-medium mb-2">{element} Element – Insights</h3>
 
           <div className="space-y-3 mb-4">
-            {Object.entries(model.metrics).map(([key, value]) => (
+          {Object.entries(model.metrics).map(([key, value]) => {
+            let displayValue: string = '';
+            let barValue: number = typeof value === 'number' ? value : parseFloat(value);
+
+            if (key === 'estimated_cost_usd') {
+              displayValue = `$${parseFloat(value.toString()).toFixed(4)}`;
+              barValue = 0; // hide progress bar
+            } else if (key === 'speed') {
+              displayValue = `${parseFloat(value.toString()).toFixed(2)} sec`;
+              barValue = Math.min(100, (10 / barValue) * 100); // Invert for faster = more filled
+            } else if (key.includes('tokens')) {
+              displayValue = `${value} tokens`;
+              barValue = 100; // full bar for now (or normalize if needed)
+            } else {
+              displayValue = `${value}%`;
+              barValue = Math.min(100, barValue);
+            }
+
+            return (
               <div key={key} className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="capitalize">{key}</span>
-                  <span>{value}%</span>
+                  <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                  <span>{displayValue}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div
-                    className="bg-primary h-1.5 rounded-full"
-                    style={{ width: `${value}%` }}
-                  ></div>
-                </div>
+                {key !== 'estimated_cost_usd' && (
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div
+                      className="bg-primary h-1.5 rounded-full"
+                      style={{ width: `${barValue}%` }}
+                    />
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-
-          <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Pros</h4>
-            <ul className="text-xs space-y-1 mb-3">
-              {model.prosCons.pros.map((pro, i) => (
-                <li key={i} className="flex items-start">
-                  <span className="text-green-500 mr-1">+</span> {pro}
-                </li>
-              ))}
-            </ul>
-
-            <h4 className="text-sm font-medium mb-2">Cons</h4>
-            <ul className="text-xs space-y-1">
-              {model.prosCons.cons.map((con, i) => (
-                <li key={i} className="flex items-start">
-                  <span className="text-red-500 mr-1">-</span> {con}
-                </li>
-              ))}
-            </ul>
+            );
+          })}
           </div>
         </div>
       </div>

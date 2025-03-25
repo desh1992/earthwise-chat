@@ -1,26 +1,11 @@
-// // src/pages/ReportPage.tsx
-// import ReportView from '@/components/ReportView';
-// import dummyReport from '@/data/dummyReport';
-
-// const ReportPage = () => {
-//   return (
-//     <div className="min-h-screen bg-background px-6 py-8">
-//       <ReportView data={dummyReport} />
-//     </div>
-//   );
-// };
-
-// export default ReportPage;
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from 'recharts';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 
-const industries = ['finance', 'healthcare', 'education', 'legal'];
-const metrics = ['Reasoning', 'Technical', 'Language', 'Instruction', 'Creativity', 'Bias Awareness'];
+const metrics = ['Reasoning', 'Technical', 'Language', 'Instruction Following', 'Creativity', 'Bias Awareness'];
 const models = ['chatgpt', 'gemini', 'llama', 'claude'];
 
 const modelLabels = {
@@ -30,41 +15,53 @@ const modelLabels = {
   claude: 'Fire AI',
 };
 
-const generateDummyData = () => {
-  return models.reduce((acc, model) => {
-    acc[model] = {};
-    metrics.forEach(metric => {
-      acc[model][metric] = parseFloat((Math.random() * 5 + 5).toFixed(2));
-    });
-    return acc;
-  }, {});
-};
-
-const industryDataMap = {
-  finance: generateDummyData(),
-  healthcare: generateDummyData(),
-  education: generateDummyData(),
-  legal: generateDummyData(),
-};
-
 const metricColors = {
   Reasoning: 'url(#reasoningGradient)',
   Technical: 'url(#technicalGradient)',
   Language: 'url(#languageGradient)',
-  Instruction: 'url(#instructionGradient)',
+  'Instruction Following': 'url(#instructionFollowingGradient)', // ✅ updated
   Creativity: 'url(#creativityGradient)',
   'Bias Awareness': 'url(#biasGradient)',
 };
 
 const ReportPage = () => {
-  const [selectedIndustry, setSelectedIndustry] = useState('finance');
-  const currentData = industryDataMap[selectedIndustry];
+  const [reportData, setReportData] = useState<Record<string, any> | null>(null);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const stored = localStorage.getItem('reportData');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setReportData(parsed);
+        const defaultIndustry = Object.keys(parsed)[0];
+        setSelectedIndustry(defaultIndustry);
+      } catch (err) {
+        console.error('Failed to parse report data:', err);
+      }
+    }
+  }, []);
+
+  const currentData = reportData?.[selectedIndustry];
+
+  if (!reportData || !currentData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="pt-24 px-6 pb-10 max-w-7xl mx-auto">
+          <p className="text-muted-foreground">Loading report...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const industries = Object.keys(reportData);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="pt-24 px-6 pb-10 max-w-7xl mx-auto">
         <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6">
           ← Back to Home
@@ -86,9 +83,9 @@ const ReportPage = () => {
               <stop offset="0%" stopColor="#6ee7b7" />
               <stop offset="100%" stopColor="#ecfdf5" />
             </linearGradient>
-            <linearGradient id="instructionGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#c4b5fd" />
-              <stop offset="100%" stopColor="#ede9fe" />
+            <linearGradient id="instructionFollowingGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#a78bfa" />     {/* Vibrant indigo */}
+              <stop offset="100%" stopColor="#ddd6fe" />   {/* Soft lavender */}
             </linearGradient>
             <linearGradient id="creativityGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#fde68a" />
@@ -116,20 +113,25 @@ const ReportPage = () => {
                 {models.map(model => (
                   <div key={model} className="bg-white p-4 rounded-xl shadow">
                     <h3 className="text-lg font-semibold mb-4 text-center capitalize">{modelLabels[model]}</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={180}>
                       <BarChart
                         data={metrics.map(metric => ({
                           name: metric,
-                          value: currentData[model][metric],
+                          value: reportData[industry][model]?.[metric] ?? 0,
                           fill: metricColors[metric],
                         }))}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis domain={[0, 10]} />
+                        <XAxis
+                          dataKey="name"
+                          tickFormatter={(tick) =>
+                            tick === 'Instruction Following' ? 'Instruction\nFollowing' : tick
+                        }
+                        />
+                        <YAxis domain={[0, dataMax => Math.min(100, Math.ceil(dataMax + 5))]} />
                         <Tooltip />
                         <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                          <LabelList dataKey="value" position="top" />
+                        <LabelList dataKey="value" position="insideTop" fill="#000" />
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>

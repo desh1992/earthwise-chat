@@ -7,12 +7,14 @@ import { Loader2 } from 'lucide-react';
 import { llmCompareService } from '@/services/llm-compare';
 import PerformanceHeatmap from './PerformanceHeatmap';
 import { apiFetch } from '@/services/apiClient';
+import { industryService } from '@/services/industry'; // Make sure this is imported
 
 interface ResponseComparisonProps {
   question: string;
   layerKey: string;
   onReset: () => void;
   onNext: () => void;
+  industryId?: string; // <-- Accept industryId as prop
 }
 
 const ResponseComparison = ({
@@ -20,6 +22,7 @@ const ResponseComparison = ({
   layerKey,
   onReset,
   onNext,
+  industryId,
 }: ResponseComparisonProps) => {
   const [responses, setResponses] = useState<any[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
@@ -27,16 +30,43 @@ const ResponseComparison = ({
   const [loading, setLoading] = useState(true);
   const [evaluationData, setEvaluationData] = useState<any>(null);
 
+  const getStageFromLayerKey = (layerKey: string): string => {
+    const phaseNumber = parseInt(layerKey.replace('phase-', ''), 10);
+  
+    switch (phaseNumber) {
+      case 1:
+        return 'Comprehension';
+      case 2:
+        return 'Reasoning';
+      case 3:
+        return 'Technical';
+      case 4:
+        return 'Language';
+      case 5:
+        return 'Instruction Following';
+      case 6:
+        return 'Creativity';
+      case 7:
+        return 'Bias Awareness';
+      default:
+        return 'Unknown';
+    }
+  };
+  
+
   const handleEvaluateClick = async () => {
+    const selectedIndustry = industryService.getSelectedIndustry(); // 💡 Get industry from service
+  
     const payload = {
-      stage: 'Reasoning',
+      stage: getStageFromLayerKey(layerKey), // ✅ dynamic stage
+      industry: selectedIndustry || 'unknown',
       prompt: responses[0]?.prompt || 'Default prompt',
       responses: {},
       costs: {},
       times: {},
       tokens: {},
     };
-
+  
     responses.forEach((res) => {
       payload.responses[res.modelId] = res.response;
       payload.costs[res.modelId] = res.metrics.estimated_cost_usd;
@@ -46,7 +76,7 @@ const ResponseComparison = ({
         completion_tokens: res.metrics.completion_tokens,
       };
     });
-
+  
     try {
       const result = await apiFetch<{ stage: string; evaluation: any }>(
         '/meta_eval/evaluate/meta',
@@ -133,7 +163,7 @@ const ResponseComparison = ({
             <DrawerContent className="p-6">
               <h4 className="text-lg font-semibold mb-4">Performance Evaluation</h4>
               {evaluationData ? (
-                <PerformanceHeatmap evaluation={evaluationData} />
+                <PerformanceHeatmap evaluation={evaluationData} industry={industryId} />
               ) : (
                 <div className="text-muted-foreground text-sm">Evaluating model performance...</div>
               )}
