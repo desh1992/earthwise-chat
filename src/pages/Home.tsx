@@ -13,6 +13,7 @@ import IndustrySelector from '@/components/phase2/IndustrySelector';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/services/apiClient'; // make sure this is imported
 import { Loader2 } from 'lucide-react';
+import { industryService } from '@/services/industry';
 
 const MAX_PHASE = 7;
 
@@ -87,6 +88,13 @@ const Home = () => {
       setLoading(false); // Stop loader
     }
   };
+
+  useEffect(() => {
+    const storedIndustry = industryService.getSelectedIndustry();
+    if (storedIndustry) {
+      setSelectedIndustry(storedIndustry);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -189,7 +197,10 @@ const Home = () => {
                   transition={{ duration: 0.4 }}
                   className="glass-card p-6"
                 >
-                  <IndustrySelector onSelectIndustry={(id) => setSelectedIndustry(id)} />
+                  <IndustrySelector onSelectIndustry={(id) => {
+                    industryService.setSelectedIndustry(id); // ✅ Persist in localStorage
+                    setSelectedIndustry(id);
+                  }} />
                 </motion.div>
               ) : (
                 <motion.div

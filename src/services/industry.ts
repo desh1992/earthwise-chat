@@ -16,17 +16,17 @@ const industryService = {
     const matchedKey = Object.keys(questionsData).find(
       (k) => k.toLowerCase().replace(/\s+/g, '_') === industryId
     );
-  
+
     if (!matchedKey) return [];
-  
+
     const industryData = questionsData[matchedKey];
-  
+
     // Handle nested structure
     const innerKeys = Object.keys(industryData);
     if (innerKeys.length === 1 && typeof industryData[innerKeys[0]] === 'object') {
       return industryData[innerKeys[0]]?.[stage] || [];
     }
-  
+
     // Handle flat structure
     return industryData?.[stage] || [];
   },
@@ -37,7 +37,14 @@ const industryService = {
   },
 
   getSelectedIndustry: () => selectedIndustryId,
+
+  // ✅ Add this new method
+  clearSelectedIndustry: () => {
+    selectedIndustryId = null;
+    localStorage.removeItem('selectedIndustry');
+  },
 };
+
 
 export { industryService };
 

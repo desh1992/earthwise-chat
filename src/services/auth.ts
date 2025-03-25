@@ -1,3 +1,5 @@
+import { industryService } from './industry'; // adjust path as needed
+
 // Define your User interface if not already defined elsewhere
 interface User {
   email: string;
@@ -91,7 +93,8 @@ export const authService = {
   
   // You might want to add a logout method
   logout(): void {
-    localStorage.clear();
+    industryService.clearSelectedIndustry(); // ✅ clear in-memory and localStorage
+    localStorage.clear(); // ✅ clear everything else
   },
   
   // Helper method to check if user is authenticated
