@@ -23,7 +23,7 @@ const colors: Record<string, string> = {
   Neutrality: '#818cf8',
 };
 
-const displayNames = {
+const displayNames: Record<string, string> = {
   chatgpt: 'Water AI',
   gemini: 'Air AI',
   llama: 'Earth AI',
@@ -67,7 +67,9 @@ const PerformanceHeatmap = ({ evaluation, stage, industry }: Props) => {
               </div>
             )}
 
-            <h3 className="text-md font-semibold text-center mb-3">{displayNames[model]}</h3>
+            <h3 className="text-md font-semibold text-center mb-3">
+              {displayNames[model]}
+            </h3>
 
             <div className="space-y-4">
               {[metric1, metric2].map((metric) => (
@@ -94,7 +96,7 @@ const PerformanceHeatmap = ({ evaluation, stage, industry }: Props) => {
             </div>
 
             <div className="mt-5 text-base text-gray-800 text-center font-bold">
-              Proprietary Score: {data.proprietaryScore}%
+              CoreEval Score: {data.proprietaryScore}%
             </div>
 
             {data.explanation && (

@@ -1,11 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from 'recharts';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/components/ui/tabs';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  LabelList,
+} from 'recharts';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 
-const metrics = ['Reasoning', 'Technical', 'Language', 'Instruction Following', 'Creativity', 'Bias Awareness'];
+const metrics = [
+  'Reasoning',
+  'Technical',
+  'Language',
+  'Instruction Following',
+  'Creativity',
+  'Bias Awareness',
+];
 const models = ['chatgpt', 'gemini', 'llama', 'claude'];
 
 const modelLabels = {
@@ -15,11 +36,18 @@ const modelLabels = {
   claude: 'Fire AI',
 };
 
+const realNames = {
+  chatgpt: 'GPT-4',
+  gemini: 'Gemini Pro',
+  llama: 'LLaMA 2',
+  claude: 'Claude 3',
+};
+
 const metricColors = {
   Reasoning: 'url(#reasoningGradient)',
   Technical: 'url(#technicalGradient)',
   Language: 'url(#languageGradient)',
-  'Instruction Following': 'url(#instructionFollowingGradient)', // ✅ updated
+  'Instruction Following': 'url(#instructionFollowingGradient)',
   Creativity: 'url(#creativityGradient)',
   'Bias Awareness': 'url(#biasGradient)',
 };
@@ -63,12 +91,28 @@ const ReportPage = () => {
       <Header />
 
       <div className="pt-24 px-6 pb-10 max-w-7xl mx-auto">
-        <Button variant="ghost" onClick={() => navigate('/home')} className="mb-6">
-          ← Back to Home
-        </Button>
+        <div className="flex justify-between items-center mb-6">
+          <Button variant="ghost" onClick={() => navigate('/home')}>
+            ← Back to Home
+          </Button>
+          <Button
+            variant="default"
+            onClick={() =>
+              window.open(
+                'https://prompt-pal-frontend-f48848fbaff4.herokuapp.com/login',
+                '_blank'
+              )
+            }
+          >
+            🚀 Go to PromptPal
+          </Button>
+        </div>
 
-        <h2 className="text-3xl font-semibold mb-6 text-center">LLM Comparison Report</h2>
+        <h2 className="text-3xl font-semibold mb-6 text-center">
+          LLM Comparison Report
+        </h2>
 
+        {/* Gradient Definitions */}
         <svg width="0" height="0">
           <defs>
             <linearGradient id="reasoningGradient" x1="0" y1="0" x2="0" y2="1">
@@ -84,8 +128,8 @@ const ReportPage = () => {
               <stop offset="100%" stopColor="#ecfdf5" />
             </linearGradient>
             <linearGradient id="instructionFollowingGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#a78bfa" />     {/* Vibrant indigo */}
-              <stop offset="100%" stopColor="#ddd6fe" />   {/* Soft lavender */}
+              <stop offset="0%" stopColor="#a78bfa" />
+              <stop offset="100%" stopColor="#ddd6fe" />
             </linearGradient>
             <linearGradient id="creativityGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#fde68a" />
@@ -98,24 +142,28 @@ const ReportPage = () => {
           </defs>
         </svg>
 
+        {/* Tabs */}
         <Tabs value={selectedIndustry} onValueChange={setSelectedIndustry} className="w-full">
           <TabsList className="flex justify-center mb-6 flex-wrap">
-            {industries.map(industry => (
+            {industries.map((industry) => (
               <TabsTrigger key={industry} value={industry} className="capitalize mx-2">
                 {industry}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {industries.map(industry => (
+          {industries.map((industry) => (
             <TabsContent key={industry} value={industry}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {models.map(model => (
+                {models.map((model) => (
                   <div key={model} className="bg-white p-4 rounded-xl shadow">
-                    <h3 className="text-lg font-semibold mb-4 text-center capitalize">{modelLabels[model]}</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-center capitalize">
+                      {modelLabels[model]}{' '}
+                      <span className="text-sm text-muted-foreground">({realNames[model]})</span>
+                    </h3>
                     <ResponsiveContainer width="100%" height={180}>
                       <BarChart
-                        data={metrics.map(metric => ({
+                        data={metrics.map((metric) => ({
                           name: metric,
                           value: reportData[industry][model]?.[metric] ?? 0,
                           fill: metricColors[metric],
@@ -126,12 +174,12 @@ const ReportPage = () => {
                           dataKey="name"
                           tickFormatter={(tick) =>
                             tick === 'Instruction Following' ? 'Instruction\nFollowing' : tick
-                        }
+                          }
                         />
-                        <YAxis domain={[0, dataMax => Math.min(100, Math.ceil(dataMax + 5))]} />
+                        <YAxis domain={[0, (dataMax) => Math.min(100, Math.ceil(dataMax + 5))]} />
                         <Tooltip />
                         <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                        <LabelList dataKey="value" position="insideTop" fill="#000" />
+                          <LabelList dataKey="value" position="insideTop" fill="#000" />
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
