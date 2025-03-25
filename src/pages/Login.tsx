@@ -20,30 +20,16 @@ const Login = () => {
       <div className="fixed inset-0 z-[-1] pointer-events-none">
         <motion.div 
           className="absolute top-1/4 right-0 w-1/3 h-1/3 rounded-full bg-blue-50 blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.4, 0.3]
-          }}
-          transition={{ 
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.4, 0.3] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
           className="absolute bottom-0 left-0 w-1/2 h-1/2 rounded-full bg-purple-50 blur-3xl"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.3, 0.2]
-          }}
-          transition={{ 
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.3, 0.2] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
-      
+
       <div className="flex-1 flex flex-col sm:flex-row">
         {/* Left Side - Brand/Logo */}
         <motion.div 
@@ -57,7 +43,8 @@ const Login = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mb-8"
+              className="mb-8 cursor-pointer"
+              onClick={() => navigate('/')}
             >
               <div className="inline-flex items-center">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
@@ -66,7 +53,7 @@ const Login = () => {
                 <span className="ml-3 text-2xl font-medium">CoreEval</span>
               </div>
             </motion.div>
-            
+
             <motion.h1 
               className="text-3xl font-bold mb-6"
               initial={{ opacity: 0, y: 20 }}
@@ -75,7 +62,7 @@ const Login = () => {
             >
               Welcome Back
             </motion.h1>
-            
+
             <motion.p 
               className="text-muted-foreground mb-8"
               initial={{ opacity: 0, y: 20 }}
@@ -84,7 +71,7 @@ const Login = () => {
             >
               Sign in to continue your journey through the Earth's layers and explore the power of different AI models.
             </motion.p>
-            
+
             <motion.div
               className="space-y-4"
               initial={{ opacity: 0, y: 20 }}
@@ -100,7 +87,7 @@ const Login = () => {
                   <p className="text-sm text-muted-foreground">Discover the capabilities of various LLMs</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                   <span className="text-primary">2</span>
@@ -110,7 +97,7 @@ const Login = () => {
                   <p className="text-sm text-muted-foreground">See detailed stats and performance metrics</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                   <span className="text-primary">3</span>
@@ -120,7 +107,7 @@ const Login = () => {
                   <p className="text-sm text-muted-foreground">Choose the right model for your needs</p>
                 </div>
               </div>
-              
+
               <motion.p
                 className="text-center text-base font-medium text-muted-foreground mt-6 flex flex-col items-center"
                 initial={{ opacity: 0 }}
@@ -137,7 +124,7 @@ const Login = () => {
             </motion.div>
           </div>
         </motion.div>
-        
+
         {/* Right Side - Login Form */}
         <motion.div 
           className="w-full sm:w-1/2 flex flex-col justify-center items-center p-8"
@@ -157,9 +144,9 @@ const Login = () => {
                 Enter your details to access your account
               </p>
             </motion.div>
-            
+
             <AuthForm type="login" />
-            
+
             <motion.div 
               className="mt-8 text-center"
               initial={{ opacity: 0, y: 20 }}

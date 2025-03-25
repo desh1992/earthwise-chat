@@ -101,7 +101,7 @@ const AnimatedRoutes = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
-        <Route path="/report" element={<ReportPage />} />
+        <Route path="/report" element={<ProtectedRoute element={<ReportPage />} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>

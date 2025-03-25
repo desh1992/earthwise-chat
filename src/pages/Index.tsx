@@ -102,14 +102,16 @@ const Index = () => {
             >
               Get Started
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="px-8 rounded-full"
-              onClick={() => navigate('/login')}
-            >
-              Sign In
-            </Button>
+            {!isAuthenticated && (
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-8 rounded-full"
+                onClick={() => navigate('/login')}
+              >
+                Sign In
+              </Button>
+            )}
           </motion.div>
         </motion.div>
         

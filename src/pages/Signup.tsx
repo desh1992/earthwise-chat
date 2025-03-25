@@ -20,30 +20,16 @@ const Signup = () => {
       <div className="fixed inset-0 z-[-1] pointer-events-none">
         <motion.div 
           className="absolute top-0 right-0 w-1/3 h-1/3 rounded-full bg-purple-50 blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.4, 0.3]
-          }}
-          transition={{ 
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.4, 0.3] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
           className="absolute bottom-0 left-0 w-1/2 h-1/2 rounded-full bg-blue-50 blur-3xl"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.3, 0.2]
-          }}
-          transition={{ 
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.3, 0.2] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
-      
+
       <div className="flex-1 flex flex-col sm:flex-row">
         {/* Left Side - Brand/Logo */}
         <motion.div 
@@ -57,7 +43,8 @@ const Signup = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mb-8"
+              className="mb-8 cursor-pointer"
+              onClick={() => navigate('/')}
             >
               <div className="inline-flex items-center">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
@@ -66,7 +53,7 @@ const Signup = () => {
                 <span className="ml-3 text-2xl font-medium">CoreEval</span>
               </div>
             </motion.div>
-            
+
             <motion.h1 
               className="text-3xl font-bold mb-6"
               initial={{ opacity: 0, y: 20 }}
@@ -75,7 +62,7 @@ const Signup = () => {
             >
               Create Your Account
             </motion.h1>
-            
+
             <motion.p 
               className="text-muted-foreground mb-8"
               initial={{ opacity: 0, y: 20 }}
@@ -84,7 +71,7 @@ const Signup = () => {
             >
               Join us on a journey through the Earth's layers to explore and compare the capabilities of different AI models.
             </motion.p>
-            
+
             <motion.div
               className="space-y-4 hidden sm:block"
               initial={{ opacity: 0, y: 20 }}
@@ -115,7 +102,7 @@ const Signup = () => {
             </motion.div>
           </div>
         </motion.div>
-        
+
         {/* Right Side - Signup Form */}
         <motion.div 
           className="w-full sm:w-1/2 flex flex-col justify-center items-center p-8"
@@ -135,9 +122,9 @@ const Signup = () => {
                 Create an account to begin your exploration
               </p>
             </motion.div>
-            
+
             <AuthForm type="signup" />
-            
+
             <motion.div 
               className="mt-8 text-center"
               initial={{ opacity: 0, y: 20 }}

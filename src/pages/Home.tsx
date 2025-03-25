@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthContext } from '@/App';
 import Header from '@/components/Header';
@@ -15,6 +16,8 @@ const MAX_PHASE = 7;
 
 const Home = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const [currentPhase, setCurrentPhase] = useState(1);
   const [latestStats, setLatestStats] = useState<any>(null);
   const [isPresenter, setIsPresenter] = useState(true);
@@ -39,7 +42,6 @@ const Home = () => {
   }, [currentPhase]);
 
   const handlePhaseSelect = (phase: number) => {
-    // lock all stage navigation via phase number
     if (isPresenter && phase === currentPhase) {
       setCurrentPhase(phase);
     }
@@ -189,12 +191,11 @@ const Home = () => {
                 </motion.div>
               )}
 
-              {/* ADD BUTTON BELOW */}
-<div className="mt-12 flex justify-center">
-  <Button onClick={() => console.log("Generate Report Clicked")}>
-    📊 Generate Report
-  </Button>
-</div>
+              <div className="mt-12 flex justify-center">
+                <Button onClick={() => navigate('/report')}>
+                  📊 Generate Report
+                </Button>
+              </div>
             </>
           )}
         </div>
